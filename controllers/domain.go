@@ -16,6 +16,9 @@ func DomainCtx(next http.Handler) http.Handler {
 		var servers []*models.Server
 		var err error
 
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+    w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
 		if domainName := chi.URLParam(r, "domainName"); domainName != "" {
 			domain, servers = scraper.GetDomainAPI(domainName)
       if err != nil || domain == nil {
