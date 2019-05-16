@@ -1,4 +1,4 @@
-package api
+package responses
 
 import (
   "net/http"
@@ -6,12 +6,13 @@ import (
 )
 
 type DomainResponse struct {
-  Servers          []*ServerResponse `json:"servers"`
-  ServersChanged   bool		           `json:"servers_changed"`
-  SslGrade         string	           `json:"ssl_grade"`
-  PreviousSslGrade string	           `json:"previous_ssl_grade"`
-  Logo             string	           `json:"logo"`
-  IsDown           bool		           `json:"is_down"`
+  Servers           []*ServerResponse  `json:"servers"`
+  ServersChanged    bool		           `json:"servers_changed"`
+  SslGrade          string	           `json:"ssl_grade"`
+  PreviousSslGrade  string	           `json:"previous_ssl_grade"`
+  Logo              string	           `json:"logo"`
+  Title             string	           `json:"title"`
+  IsDown            bool		           `json:"is_down"`
 }
 
 func CreateDomainResponse(domain *models.Domain, servers []*models.Server) *DomainResponse {
@@ -27,6 +28,7 @@ func CreateDomainResponse(domain *models.Domain, servers []*models.Server) *Doma
     domain.SslGrade,
     domain.PreviousSslGrade,
     domain.Logo,
+    domain.Title,
     domain.IsDown,
   }
 }

@@ -9,14 +9,15 @@ import (
 var db *gorm.DB
 
 func InitDB() {
-  const ADDRESS = "postgresql://ivanmtoroc@localhost:26257/domains?sslmode=disable"
+  const DB_ADDRESS = "postgresql://ivanmtoroc@localhost:26257/domains?sslmode=disable"
+  var err error
 
-  db_connection, err := gorm.Open("postgres", ADDRESS)
+  db, err = gorm.Open("postgres", DB_ADDRESS)
   if err != nil {
-    log.Fatal(err)
+    log.Println("DB initialization error:")
+    log.Fatalln(err)
   }
 
-  db = db_connection
   db.AutoMigrate(&Server{})
   db.AutoMigrate(&Domain{})
 }

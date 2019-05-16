@@ -1,4 +1,4 @@
-package api
+package responses
 
 import (
   "go-domains/models"

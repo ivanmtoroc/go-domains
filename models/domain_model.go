@@ -1,7 +1,7 @@
 package models
 
 import (
-  "time"
+  "time"  
 )
 
 type Domain struct {
@@ -11,16 +11,17 @@ type Domain struct {
   PreviousSslGrade  string
   Logo              string
   IsDown            bool
-  UpdatedAt         time.Time
+  Title             string
+  CreatedAt         time.Time
 }
 
-func (domain *Domain) Create() {
+func (domain *Domain) Save() {
   GetDB().Create(domain)
 }
 
-func GetDomainDB(name string) *Domain {
+func GetDomainByNameDB(name string) *Domain {
   domain := &Domain{}
-  GetDB().Table("domains").Where("name = ?", name).Order("updated_at desc").First(domain)
+  GetDB().Table("domains").Where("name = ?", name).Order("created_at desc").First(domain)
   if domain.Name != name {
 		return nil
 	}

@@ -2,7 +2,7 @@ package main
 
 import (
   "net/http"
-  "go-domains/controllers"
+  "go-domains/handlers"
   "go-domains/models"
   "github.com/go-chi/chi"
   "github.com/go-chi/render"
@@ -20,10 +20,7 @@ func main() {
 	})
 
 	router.Route("/domains", func(router chi.Router) {
-		router.Route("/{domainName}", func(router chi.Router) {
-			router.Use(controllers.DomainCtx)
-			router.Get("/", controllers.GetDomain)
-		})
+		router.Get("/{domain_name}", handlers.GetDomain)
 	})
 
 	http.ListenAndServe(":3333", router)
