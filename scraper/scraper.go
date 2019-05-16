@@ -1,7 +1,6 @@
 package scraper
 
 import (
-	"fmt"
 	"log"
 	"time"
 	"bytes"
@@ -24,22 +23,25 @@ var GRADES = map[string]int {
 }
 
 func GetDomainAPI(hostName string) (*models.Domain, []*models.Server) {
-	domain := &models.Domain{hostName, false, "", "", getIcon(hostName), false, time.Now()}
-	servers := getServers(domain)
+	now := time.Now()
+	domain := &models.Domain{hostName, false, "", "", getIcon(hostName), false, now}
+	servers := getServers(domain, now)
 
 	if servers == nil {
 		domain.IsDown = true
+		return domain, nil
 	}
 
 	return domain, servers
 }
 
-func getServers(domain *models.Domain) []*models.Server {
+func getServers(domain *models.Domain, now time.Time) []*models.Server {
 	const API_URL = "https://api.ssllabs.com/api/v3/analyze?host="
 	var result map[string]interface{}
 	var servers []*models.Server
 	num_min_grade := 1
 
+	log.Println("Consulting API - Host: " + domain.Name)
 	for {
 		response, err := http.Get(API_URL + domain.Name)
 		if err != nil {
@@ -48,12 +50,14 @@ func getServers(domain *models.Domain) []*models.Server {
 
 		json.NewDecoder(response.Body).Decode(&result)
 
-		fmt.Println(result["status"])
-		if status := result["status"]; status == "READY" {
+		status := result["status"].(string)
+		log.Println("  - Status: " + status)
+		if status == "READY" {
 			break
 		} else if status == "ERROR" {
 			return nil
 		}
+
 		time.Sleep(1 * time.Second)
 	}
 
@@ -66,7 +70,7 @@ func getServers(domain *models.Domain) []*models.Server {
 		}
 		country := runShCommant("whois " + ip + " | grep -E '[Cc]ountry' | head -n 1 | sed -E 's/[Cc]ountry: *//'")
 		owner := runShCommant("whois " + ip + " | grep -E 'OrgName|org-name|owner' | head -n 1 | sed -E 's/(OrgName|org-name|owner): *//'")
-		server := &models.Server{ip, grade, country, owner, domain.Name, time.Now()}
+		server := &models.Server{ip, grade, country, owner, domain.Name, now}
 		servers = append(servers, server)
 		if num_min_grade < GRADES[grade] {
 			num_min_grade = GRADES[grade]

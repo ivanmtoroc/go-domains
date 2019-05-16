@@ -1,7 +1,6 @@
 package models
 
 import (
-  "errors"
   "time"
 )
 
@@ -19,11 +18,11 @@ func (domain *Domain) Create() {
   GetDB().Create(domain)
 }
 
-func GetDomainDB(name string) (*Domain, error) {
+func GetDomainDB(name string) *Domain {
   domain := &Domain{}
-  GetDB().Table("domains").Where("name = ?", name).First(domain)
+  GetDB().Table("domains").Where("name = ?", name).Order("updated_at desc").First(domain)
   if domain.Name != name {
-		return nil, errors.New("Domain not found.")
+		return nil
 	}
-  return domain, nil
+  return domain
 }
