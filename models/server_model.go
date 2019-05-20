@@ -33,7 +33,7 @@ func (server *Server) Save() {
   GetDB().Create(server)
 }
 
-func GetServers(domain *Domain) []*Server {
+func GetServersDB(domain *Domain) []*Server {
   var servers []*Server
   GetDB().Table("servers").Where(
       "domain_name = ? AND created_at >= ?",

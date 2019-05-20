@@ -15,14 +15,16 @@ var GRADES = map[string]int {
 }
 
 func GetServers(domain *models.Domain) []*models.Server {
+	var servers []*models.Server
+
   result := consultAPI(domain)
   if domain == nil {
     return nil
   } else if domain.IsDown {
-    return []*models.Server
+		return servers
   }
 
-	servers := getServerToAPI(domain, result)
+	servers = getServerToAPI(domain, result)
 	return servers
 }
 

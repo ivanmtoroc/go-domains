@@ -4,9 +4,14 @@
     <p>
       Rest API that allows us to obtain information about a server
       and to know if the configurations have changed.<br/>
-      Receive a domain like
+      <br/>
+      <router-link :to="{ name: 'home' }">Get domains</router-link>
+      receive a domain like
       <a class="vue-green" href="http://truora.com" target="_blank">truora.com</a>
-      and return a JSON with the information.
+      and return a JSON with the information.<br/>
+      <br/>
+      <router-link :to="{ name: 'items' }">Get items</router-link>
+      lists the servers that have been previously consulted.
     </p>
   </div>
 </template>

@@ -1,7 +1,7 @@
 package models
 
 import (
-  "time"  
+  "time"
 )
 
 type Domain struct {
@@ -26,4 +26,13 @@ func GetDomainByNameDB(name string) *Domain {
 		return nil
 	}
   return domain
+}
+
+func GetDomainsDB() []*Domain {
+  var domains []*Domain
+  GetDB().Table("domains").Select("name, max(is_down) as is_down, max(logo) as logo, max(title) as title, max(created_at) as created_at").Group("name").Scan(&domains)
+  if len(domains) == 0 {
+		return nil
+	}
+  return domains
 }

@@ -16,7 +16,7 @@ type DomainResponse struct {
 }
 
 func CreateDomainResponse(domain *models.Domain, servers []*models.Server) *DomainResponse {
-  var servers_response []*ServerResponse
+  var servers_response []*ServerResponse = make([]*ServerResponse, 0)
 
   for _, server := range servers {
     servers_response = append(servers_response, createServerResponse(server))

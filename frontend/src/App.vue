@@ -10,6 +10,11 @@
                 Get Domain
               </b-button>
             </router-link>
+            <router-link to="/items">
+              <b-button pill block size="lg" variant="outline-danger">
+                Get Items
+              </b-button>
+            </router-link>
             <router-link to="/about">
               <b-button pill block size="lg" variant="outline-success">
                 About

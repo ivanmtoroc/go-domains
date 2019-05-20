@@ -23,5 +23,7 @@ func main() {
 		router.Get("/{domain_name}", handlers.GetDomain)
 	})
 
+	router.Get("/items", handlers.GetItems)
+
 	http.ListenAndServe(":3333", router)
 }
