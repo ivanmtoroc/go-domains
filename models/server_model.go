@@ -20,7 +20,7 @@ func (server *Server) Equal(other_server *Server) bool {
     return false
   } else if server.Country != other_server.Country {
     return false
-  } else if server.Owner != other_server.Country {
+  } else if server.Owner != other_server.Owner {
     return false
   } else if server.DomainName != other_server.DomainName {
     return false
