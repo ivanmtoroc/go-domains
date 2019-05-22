@@ -5,7 +5,7 @@
       <b-row>
         <b-col class="column" sm="12" md="4">
           <div class="section">
-            <router-link to="/">
+            <router-link to="/domains">
               <b-button pill block size="lg" variant="outline-primary">
                 Get Domain
               </b-button>

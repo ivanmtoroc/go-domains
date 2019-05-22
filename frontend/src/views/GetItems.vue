@@ -1,40 +1,30 @@
 <template>
   <div>
     <h2 class="vue-green">Get Items</h2>
-  <b-card class="mt-3" header="API Result">
-    <pre class="m-0">{{ result }}</pre>
-  </b-card>
-</div>
+    <ApiViewer :result="result" :loading="loading"/>
+  </div>
 </template>
 
 <script>
-import axios from 'axios'
-
-const http = axios.create({
-  baseURL: 'http://localhost:3333'
-})
+import { mapActions } from 'vuex'
+import ApiViewer from '@/components/ApiViewer.vue'
 
 export default {
   data () {
     return {
       result: {},
       domain: '',
-      loading: true,
-      error: false
+      loading: true
     }
   },
+  components: {
+    ApiViewer
+  },
   methods: {
+    ...mapActions('utilities', ['get']),
     async getItems () {
       this.loading = true
-      this.error = false
-      const response = await http.get('items')
-        .catch(errors => {
-          this.result = errors.response.data
-          this.error = true
-        })
-      if (!this.error) {
-        this.result = response.data
-      }
+      this.result = await this.get('items')
       this.loading = false
     }
   },

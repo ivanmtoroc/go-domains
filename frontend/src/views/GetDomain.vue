@@ -10,44 +10,34 @@
         required
         >
       </b-input>
-      <b-button type="submit" variant="success">Get</b-button>
+      <b-button :disabled="loading" type="submit" variant="success">Get</b-button>
     </b-form-group>
   </b-form>
-  <b-card class="mt-3" header="API Result">
-    <pre class="m-0">{{ result }}</pre>
-  </b-card>
+  <ApiViewer :result="result" :loading="loading"/>
 </div>
 </template>
 
 <script>
-import axios from 'axios'
-
-const http = axios.create({
-  baseURL: 'http://localhost:3333'
-})
+import { mapActions } from 'vuex'
+import ApiViewer from '@/components/ApiViewer.vue'
 
 export default {
   data () {
     return {
       result: {},
       domain: '',
-      loading: true,
-      error: false
+      loading: false
     }
   },
+  components: {
+    ApiViewer
+  },
   methods: {
+    ...mapActions('utilities', ['get']),
     async getDomain (evt) {
       evt.preventDefault()
       this.loading = true
-      this.error = false
-      const response = await http.get('domains/' + this.domain)
-        .catch(errors => {
-          this.result = errors.response.data
-          this.error = true
-        })
-      if (!this.error) {
-        this.result = response.data
-      }
+      this.result = await this.get('domains/' + this.domain)
       this.loading = false
     }
   }
