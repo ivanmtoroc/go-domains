@@ -62,7 +62,7 @@ func verifyChanges(domain *models.Domain, servers []*models.Server)  {
 }
 
 func serversChanges(servers []*models.Server, previous_domain *models.Domain) bool {
-	previous_servers := models.GetServersDB(previous_domain)
+	previous_servers := models.GetServersByDomainDB(previous_domain)
 	if len(servers) != len(previous_servers) {
 		return true
 	}

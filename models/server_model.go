@@ -13,6 +13,10 @@ type Server struct {
   CreatedAt   time.Time
 }
 
+func (server *Server) Save() {
+  GetDB().Create(server)
+}
+
 func (server *Server) Equal(other_server *Server) bool {
   if server.Address != other_server.Address {
     return false
@@ -25,15 +29,10 @@ func (server *Server) Equal(other_server *Server) bool {
   } else if server.DomainName != other_server.DomainName {
     return false
   }
-
   return true
 }
 
-func (server *Server) Save() {
-  GetDB().Create(server)
-}
-
-func GetServersDB(domain *Domain) []*Server {
+func GetServersByDomainDB(domain *Domain) []*Server {
   var servers []*Server
   GetDB().Table("servers").Where(
       "domain_name = ? AND created_at >= ?",

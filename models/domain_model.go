@@ -30,7 +30,13 @@ func GetDomainByNameDB(name string) *Domain {
 
 func GetDomainsDB() []*Domain {
   var domains []*Domain
-  GetDB().Table("domains").Select("name, max(is_down) as is_down, max(logo) as logo, max(title) as title, max(created_at) as created_at").Group("name").Scan(&domains)
+  GetDB().Raw(`
+    SELECT name, is_down, logo, title, created_at
+    FROM domains AS d1
+    WHERE created_at = (
+        SELECT MAX(created_at) FROM domains AS d2 WHERE d1.name = d2.name
+    )`,
+  ).Scan(&domains)
   if len(domains) == 0 {
 		return nil
 	}

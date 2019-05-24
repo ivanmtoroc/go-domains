@@ -1,2 +1,3 @@
 cockroach-data/
 node_modules/
+dist/
