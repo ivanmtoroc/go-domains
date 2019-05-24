@@ -1,88 +1,120 @@
 package scraper
 
 import (
-	"log"
-	"time"
-	"net/http"
-	"encoding/json"
-	"go-domains/models"
-	"go-domains/utilities"
+  "log"
+  "time"
+  "net/http"
+  "encoding/json"
+  "go-domains/models"
+  "go-domains/utilities"
 )
 
+// SSL Labs API URL
 const API_URL = "https://api.ssllabs.com/api/v3/analyze?host="
+// Grades options in SSL Labs
 var GRADES = map[string]int {
-	"A+":	1, "A":	2, "B":	3, "C":	4, "D":	5, "E":	6, "F":	7, "Invalid": 8,
+  "A+": 1, "A-": 2, "A": 3, "B": 4, "C": 5, "D": 6,
+  "E": 7, "F": 8, "T": 9, "M": 10, "Invalid": 11,
 }
 
-func GetServers(domain *models.Domain) []*models.Server {
-	var servers []*models.Server
+// Function to get servers of domain by SSL Labs API
+func getServers(domain *models.Domain) ([]*models.Server, error) {
+  var servers []*models.Server
 
-  result := consultAPI(domain)
-  if domain == nil {
-    return nil
-  } else if domain.IsDown {
-		return servers
+  // Get JSON response to API
+  result, err := consultAPI(domain)
+  // Validate if domain is not valid or is down
+  if err != nil {
+    return nil, err
+  } else if !domain.IsValid {
+    return servers, nil
   }
 
-	servers = getServerToAPI(domain, result)
-	return servers
+  // Get servers from JSON response and set SslGrade to domain
+  servers = getServerFromResponse(domain, result)
+
+  return servers, nil
 }
 
-func consultAPI(domain *models.Domain) map[string]interface{} {
-	var result map[string]interface{}
+// Function that fetch JSON response from SSL Labs API by domain
+func consultAPI(domain *models.Domain) (map[string]interface{}, error) {
+  var result map[string]interface{}
 
-  log.Println("Consulting API - Host: " + domain.Name)
-	for {
-		response, err := http.Get(API_URL + domain.Name)
-		if err != nil {
-      domain = nil
-      return nil
-		}
+  log.Println("Consulting API | Host name: " + domain.Name)
+  for {
+    // Make http request (Method Get) to API
+    response, err := http.Get(API_URL + domain.Name)
+    if err != nil {
+      log.Println("API request error")
+      log.Println(err)
+      return nil, err
+    }
 
-		err = json.NewDecoder(response.Body).Decode(&result)
-		if err == nil {
-			status := result["status"].(string)
-			log.Println("  - Status: " + status)
-			if status == "READY" {
-				return result
-			} else if status == "ERROR" {
-				domain.IsDown = true
-	      return nil
-			}
-		}
+    // Decode response
+    err = json.NewDecoder(response.Body).Decode(&result)
+    if err == nil {
+      // Validate status of domain
+      status := result["status"].(string)
+      log.Println("  - Status: " + status)
+      if status == "READY" {
+        return result, nil
+      } else if status == "ERROR" {
+        domain.IsValid = false
+        return nil, nil
+      }
+    }
 
-		time.Sleep(1 * time.Second)
-	}
+    // Wait one second to next request
+    time.Sleep(1 * time.Second)
+  }
 }
 
-func getServerToAPI(domain *models.Domain, result map[string]interface{}) []*models.Server {
-	var servers []*models.Server
+//
+func getServerFromResponse(domain *models.Domain, result map[string]interface{}) []*models.Server {
+  var servers []*models.Server
 
-	domain.SslGrade = "A+"
+  // By default domain have the best SslGrade
+  domain.SslGrade = "A+"
 
-	for _, element := range result["endpoints"].([]interface{}) {
-		endpoint := element.(map[string]interface{})
+  log.Println("  - Get endpoints")
 
-		ip := endpoint["ipAddress"].(string)
+  // Iterate endpoints of JSON response
+  for i, element := range result["endpoints"].([]interface{}) {
+    // Type assertion to map
+    endpoint := element.(map[string]interface{})
+    log.Printf("     - Endpoint %d:\n", i)
 
-		grade := "Invalid"
-		status := endpoint["statusMessage"].(string)
-		if status == "Ready" {
-			grade = endpoint["grade"].(string)
-		}
-		if GRADES[grade] > GRADES[domain.SslGrade] {
-			domain.SslGrade = grade
-		}
+    // Get IP of server
+    ip := endpoint["ipAddress"].(string)
+    log.Printf("        - IP: %s\n", ip)
 
-		command := "whois " + ip + " | grep -E '(C|c)ountry' | head -n 1 | sed -E 's/(C|c)ountry: *//'"
-		country := utilities.RunShCommant(command)
+    // By default all servers have invalid SSL
+    grade := "Invalid"
+    status := endpoint["statusMessage"].(string)
+    // If status is Ready get SSL grade
+    if status == "Ready" {
+      grade = endpoint["grade"].(string)
+    }
+    log.Printf("        - Grade: %s\n", grade)
+    // Update min SSL Grade of domain
+    if GRADES[grade] > GRADES[domain.SslGrade] {
+      domain.SslGrade = grade
+    }
 
-		command = "whois " + ip + " | grep -E 'OrgName|org-name|owner' | head -n 1 | sed -E 's/(OrgName|org-name|owner): *//'"
-		owner := utilities.RunShCommant(command)
+    // Execute whois command with IP of server to get country
+    command := "whois " + ip + " | grep -E '(C|c)ountry' | head -n 1 | sed -E 's/(C|c)ountry: *//'"
+    country := utilities.RunShCommant(command)
+    log.Printf("        - Country: %s\n", country)
 
-		server := &models.Server{ip, grade, country, owner, domain.Name, domain.CreatedAt}
-		servers = append(servers, server)
-	}
+    // Execute whois command with IP of server to get owner
+    command = "whois " + ip + " | grep -E 'OrgName|org-name|owner' | head -n 1 | sed -E 's/(OrgName|org-name|owner): *//'"
+    owner := utilities.RunShCommant(command)
+    log.Printf("        - Owner: %s\n", owner)
 
-	return servers
+    // Create and add server to servers
+    server := &models.Server{0, ip, grade, country, owner, domain.Name, domain.CreatedAt}
+    servers = append(servers, server)
+  }
+
+  return servers
 }
