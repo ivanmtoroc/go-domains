@@ -1,17 +1,24 @@
 # Go Domains
 Rest API that allows us to obtain information about a server and to know if the configurations.
 
-## Run
-To run app:
+## Dependecies
 ```
-# Start CockroachDB node
+go get github.com/go-chi/chi
+go get github.com/go-chi/render
+go get github.com/jinzhu/gorm
+go get github.com/jinzhu/gorm/dialects/postgres
+go get golang.org/x/net/html
+```
+
+## Run
+```
+# Console tab 01:
 cockroach start --insecure --listen-addr=localhost --background
-# Create database and user
 cockroach sql --insecure < models/init_db.sql
-# Execute server
 go run main.go
 
-# In new console tab
+# Console tab 02:
 cd frontend/
+npm i
 npm run dev
 ```

@@ -7,6 +7,7 @@ import (
   "strings"
 )
 
+// Function to run shell command
 func RunShCommant(command string) string {
 	cmd := exec.Command("/bin/sh", "-c", command)
 	var out bytes.Buffer

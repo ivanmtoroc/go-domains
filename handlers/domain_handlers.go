@@ -11,10 +11,12 @@ import (
 	"github.com/go-chi/render"
 )
 
+// Function to handle requests to '/domains/{domain_name}' endpoint
 func GetDomain(w http.ResponseWriter, r *http.Request) {
 	var domain *models.Domain
 	var servers []*models.Server
 
+	// Add CORS to response
 	utilities.SetCORS(w)
 
 	if domain_name := chi.URLParam(r, "domain_name"); domain_name != "" {

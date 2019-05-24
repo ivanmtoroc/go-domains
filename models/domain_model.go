@@ -15,19 +15,25 @@ type Domain struct {
   CreatedAt         time.Time
 }
 
+// Method to save a domain into database
 func (domain *Domain) Save() {
   GetDB().Create(domain)
 }
 
+// Function to get most recent domain from database by name
 func GetDomainByNameDB(name string) *Domain {
   domain := &Domain{}
-  GetDB().Table("domains").Where("name = ?", name).Order("created_at desc").First(domain)
+  GetDB().Table("domains").Where(
+    "name = ?",
+    name,
+  ).Order("created_at desc").First(domain)
   if domain.Name != name {
 		return nil
 	}
   return domain
 }
 
+// Function to get domains history
 func GetDomainsDB() []*Domain {
   var domains []*Domain
   GetDB().Raw(`

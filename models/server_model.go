@@ -13,10 +13,12 @@ type Server struct {
   CreatedAt   time.Time
 }
 
+// Function to save a server into database
 func (server *Server) Save() {
   GetDB().Create(server)
 }
 
+// Function to determine if two server are equal
 func (server *Server) Equal(other_server *Server) bool {
   if server.Address != other_server.Address {
     return false
@@ -32,6 +34,7 @@ func (server *Server) Equal(other_server *Server) bool {
   return true
 }
 
+// Function to get servers of domain
 func GetServersByDomainDB(domain *Domain) []*Server {
   var servers []*Server
   GetDB().Table("servers").Where(

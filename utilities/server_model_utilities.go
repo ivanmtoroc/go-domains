@@ -15,6 +15,7 @@ func (order_servers_by OrderServersBy) Sort(servers []*models.Server) {
 	sort.Sort(server_sorter)
 }
 
+// Structure that satisfies sort.Interface
 type serverSorter struct {
 	servers           []*models.Server
 	order_servers_by  func(server_one, server_two models.Server) bool

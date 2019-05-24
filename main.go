@@ -1,6 +1,7 @@
 package main
 
 import (
+  "log"
   "net/http"
   "go-domains/handlers"
   "go-domains/models"
@@ -9,21 +10,20 @@ import (
 )
 
 func main() {
+  // Start connection with data base
   models.InitDB()
 
 	router := chi.NewRouter()
 
+  // Set ContentType: 'aplication/json' in header of responses
 	router.Use(render.SetContentType(render.ContentTypeJSON))
 
-	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Wellcome!"))
+  // Set routes
+	router.Route("/api/v1/", func(router chi.Router) {
+		router.Get("/domains/{domain_name}", handlers.GetDomain)
+    router.Get("/items", handlers.GetItems)
 	})
 
-	router.Route("/domains", func(router chi.Router) {
-		router.Get("/{domain_name}", handlers.GetDomain)
-	})
-
-	router.Get("/items", handlers.GetItems)
-
+  log.Println("Server listening...")
 	http.ListenAndServe(":3333", router)
 }
