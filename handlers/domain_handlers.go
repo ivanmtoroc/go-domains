@@ -44,7 +44,7 @@ func GetDomain(w http.ResponseWriter, r *http.Request) {
   // Save domain and servers into database
   domain.Save()
   for _, server := range servers {
-    server.Save()
+    server.Save(domain)
   }
 
   // If exist previous domain verify servers changes

@@ -2,7 +2,6 @@ package models
 
 import (
   "log"
-  "time"
 )
 
 // Struct used to manipulate database server objects
@@ -12,28 +11,27 @@ type Server struct {
   SslGrade    string
   Country     string
   Owner       string
-  DomainName  string
-  CreatedAt   time.Time
+  DomainID    int64
 }
 
 // Function to save a server into database
-func (server *Server) Save() {
+func (server *Server) Save(domain *Domain) {
   sql := `
   INSERT INTO servers
-  (address, ssl_grade, country, owner, domain_name, created_at)
+  (address, ssl_grade, country, owner, domain_id)
   VALUES
-  ($1, $2, $3, $4, $5, $6);
+  ($1, $2, $3, $4, $5)
+  RETURNING id;
   `
   // Execute insertion
-  if _, err := getDB().Exec(
+  if err := getDB().QueryRow(
       sql,
       server.Address,
       server.SslGrade,
       server.Country,
       server.Owner,
-      server.DomainName,
-      server.CreatedAt,
-    ); err != nil {
+      domain.ID,
+    ).Scan(&server.ID); err != nil {
     log.Println("Server insertion error")
     log.Fatalln(err)
   }
@@ -48,8 +46,6 @@ func (server *Server) Equal(other_server *Server) bool {
   } else if server.Country != other_server.Country {
     return false
   } else if server.Owner != other_server.Owner {
-    return false
-  } else if server.DomainName != other_server.DomainName {
     return false
   }
   return true
@@ -66,8 +62,8 @@ func createServersTable() {
     ssl_grade STRING NOT NULL,
     country STRING NOT NULL,
     owner STRING NOT NULL,
-    domain_name STRING NOT NULL,
-    created_at TIMESTAMP NOT NULL
+    domain_id INT NOT NULL,
+    FOREIGN KEY (domain_id) REFERENCES domains (id)
   );
   `
   // Execute statement
@@ -83,11 +79,11 @@ func GetServersByDomainDB(domain *Domain) []*Server {
   sql := `
   SELECT *
   FROM servers
-  WHERE domain_name = $1 AND created_at = $2
+  WHERE domain_id = $1
   ORDER BY address;
   `
   // Execute query
-  rows, err := getDB().Query(sql, domain.Name, domain.CreatedAt)
+  rows, err := getDB().Query(sql, domain.ID)
   if err != nil {
       log.Println("Servers query error")
       log.Fatalln(err)
@@ -104,8 +100,7 @@ func GetServersByDomainDB(domain *Domain) []*Server {
           &server.SslGrade,
           &server.Country,
           &server.Owner,
-          &server.DomainName,
-          &server.CreatedAt,
+          &server.DomainID,
         ); err != nil {
           log.Println("Get server from database error")
           log.Fatalln(err)

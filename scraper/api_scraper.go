@@ -112,7 +112,7 @@ func getServerFromResponse(domain *models.Domain, result map[string]interface{})
     log.Printf("        - Owner: %s\n", owner)
 
     // Create and add server to servers
-    server := &models.Server{0, ip, grade, country, owner, domain.Name, domain.CreatedAt}
+    server := &models.Server{0, ip, grade, country, owner, domain.ID}
     servers = append(servers, server)
   }
 

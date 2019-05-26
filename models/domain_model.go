@@ -25,10 +25,11 @@ func (domain *Domain) Save() {
   INSERT INTO domains
   (name, servers_changed, ssl_grade, previous_ssl_grade, logo, title, is_down, is_valid, created_at)
   VALUES
-  ($1, $2, $3, $4, $5, $6, $7, $8, $9);
+  ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+  RETURNING id;
   `
   // Execute insertion
-  if _, err := getDB().Exec(
+  if err := getDB().QueryRow(
       sql,
       domain.Name,
       domain.ServersChanged,
@@ -39,7 +40,7 @@ func (domain *Domain) Save() {
       domain.IsDown,
       domain.IsValid,
       domain.CreatedAt,
-    ); err != nil {
+    ).Scan(&domain.ID); err != nil {
     log.Println("Domain insertion error")
     log.Fatalln(err)
   }
