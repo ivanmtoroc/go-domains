@@ -112,7 +112,7 @@ func GetDomainByNameDB(name string) *Domain {
 }
 
 // Function to get all domains
-func GetDomainsDB() []*Domain {
+func GetDomainsDB(skip, limit string) []*Domain {
   var domains []*Domain
   sql := `
   SELECT *
@@ -120,7 +120,15 @@ func GetDomainsDB() []*Domain {
   WHERE created_at = (
       SELECT MAX(created_at) FROM domains AS d2 WHERE d1.name = d2.name
   ) AND is_valid = TRUE
+  ORDER BY name
   `
+  // Add offset and limit filters to query
+  if skip != "" {
+    sql += "OFFSET " + skip + " "
+  }
+  if limit != "" {
+    sql += "LIMIT " + limit + ";"
+  }
   // Execute query
   rows, err := getDB().Query(sql)
   if err != nil {
@@ -155,4 +163,33 @@ func GetDomainsDB() []*Domain {
     return nil
   }
   return domains
+}
+
+// Function to get the number of valid domains in database
+func GetDomainsCountDB() int {
+  sql := `
+  SELECT COUNT(id)
+  FROM domains AS d1
+  WHERE created_at = (
+      SELECT MAX(created_at) FROM domains AS d2 WHERE d1.name = d2.name
+  ) AND is_valid = TRUE
+  `
+  // Execute query
+  rows, err := getDB().Query(sql)
+  if err != nil {
+      log.Println("Domains count query error")
+      log.Fatalln(err)
+  }
+  // Defer close
+  defer rows.Close()
+
+  count := 0
+  // Iterate rows of query result
+  for rows.Next() {
+      if err := rows.Scan(&count); err != nil {
+          log.Println("Get number of domains from database error")
+          log.Fatalln(err)
+      }
+  }
+  return count
 }

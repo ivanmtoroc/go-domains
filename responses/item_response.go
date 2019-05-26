@@ -19,10 +19,11 @@ type ItemResponse struct {
 
 type ItemsResponse struct {
   Items  []*ItemResponse  `json:"items"`
+  Count  int              `json:"total_items"`
 }
 
 // Create new items response by domains
-func CreateItemsResponse(domains []*models.Domain) *ItemsResponse {
+func CreateItemsResponse(domains []*models.Domain, count int) *ItemsResponse {
   var items_response []*ItemResponse = make([]*ItemResponse, 0)
 
   // Create array of domains responses
@@ -30,7 +31,7 @@ func CreateItemsResponse(domains []*models.Domain) *ItemsResponse {
     items_response = append(items_response, createItemResponse(domain))
   }
 
-  return &ItemsResponse{items_response}
+  return &ItemsResponse{items_response, count}
 }
 
 // Create new item response by domain
