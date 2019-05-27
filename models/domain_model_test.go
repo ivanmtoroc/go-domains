@@ -5,16 +5,22 @@ import (
   "testing"
 )
 
-func TestServerEqual(t *testing.T) {
-  server_one := &Server{0, "34.23.15.1", "A+", "CO", "Truora", "truora.com", time.Now()}
-  server_two := &Server{1, "34.23.15.1", "A+", "CO", "Truora", "truora.com", time.Now()}
-  server_three := &Server{2, "34.22.15.1", "A+", "CO", "Truora", "truora.com", time.Now()}
+func TestDomainSaveAndGet(t *testing.T) {
+  domain_one := &Domain{0, "truora.com", false, "", "", "", "", false, false, time.Now()}
+  domain_one.Save()
+  domain_two := &Domain{0, "truora.com", false, "", "", "", "", false, true, time.Now()}
+  domain_two.Save()
 
-  if equal := server_one.Equal(server_two); !equal {
-    t.Error("Servers is actually equals")
+  database_domain := GetDomainByNameDB(domain_two.Name)
+  if database_domain.ID != domain_two.ID {
+    t.Error("Domain not save")
   }
 
-  if equal := server_one.Equal(server_three); equal {
-    t.Error("Servers is actually differents")
+  if count := GetDomainsCountDB(); count != 1 {
+    t.Error("Domains count failed")
+  }
+
+  if domains := GetDomainsDB("", ""); domains[0].ID != domain_two.ID {
+    t.Error("Domains order invalid")
   }
 }

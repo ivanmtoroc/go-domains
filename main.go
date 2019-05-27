@@ -12,6 +12,7 @@ import (
 func main() {
   // Start connection with data base
   models.InitDB()
+  models.CreateTables()
 
   router := chi.NewRouter()
 

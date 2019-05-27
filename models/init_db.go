@@ -20,8 +20,11 @@ func InitDB() {
     log.Println("Database connection error")
     log.Fatalln(err)
   }
+}
 
-  // Create tables 'domains' and 'servers' into database
+// Function that execute SQL stament to create tables into database
+func CreateTables() {
+  // Create 'domains' and 'servers' tables into database
   createDomainsTable()
   createServersTable()
 }
