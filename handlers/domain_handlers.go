@@ -38,18 +38,12 @@ func GetDomain(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  // Get previous domain from database
-  previous_domain := models.GetDomainByNameDB(domain.Name)
+  verifyServersChanges(domain, servers)
 
   // Save domain and servers into database
   domain.Save()
   for _, server := range servers {
     server.Save(domain)
-  }
-
-  // If exist previous domain verify servers changes
-  if previous_domain != nil {
-    verifyServersChanges(domain, previous_domain)
   }
 
   // Render domain response
@@ -60,19 +54,37 @@ func GetDomain(w http.ResponseWriter, r *http.Request) {
 }
 
 // Function to verify if the servers of two domains are different
-func verifyServersChanges(domain, previous_domain *models.Domain)  {
-  // One hour duration
-  one_hour, _ := time.ParseDuration("1h")
+func verifyServersChanges(domain *models.Domain, servers []*models.Server)  {
+  // Get previous domain from database
+  previous_domain := models.GetDomainByNameDB(domain.Name)
+  if previous_domain == nil {
+    return
+  }
 
-  domain_time := domain.CreatedAt
-  // Add one hour to previous domain created at time
-  previous_domain_time := previous_domain.CreatedAt.Add(one_hour)
+  // Get and parse time without ns and location
+  previous_domain_time := time.Date(
+    previous_domain.CreatedAt.Year(),
+    previous_domain.CreatedAt.Month(),
+    previous_domain.CreatedAt.Day(),
+    previous_domain.CreatedAt.Hour(),
+    previous_domain.CreatedAt.Minute(),
+    previous_domain.CreatedAt.Second(),
+    0, time.UTC,
+  )
+  // Get and parse time without ns and location
+  domain_time := time.Date(
+    domain.CreatedAt.Year(),
+    domain.CreatedAt.Month(),
+    domain.CreatedAt.Day(),
+    domain.CreatedAt.Hour(),
+    domain.CreatedAt.Minute(),
+    domain.CreatedAt.Second(),
+    0, time.UTC,
+  )
 
-  // Compare info only if previous domain time is <= to current domain time
-  // Only if previous server is of one hour or more before
-  // => if previous_domain_time + one_hour <= domain_time
-  if previous_domain_time.Before(domain_time) ||
-  previous_domain_time.Equal(domain_time) {
+  // Compare info only if duration between previous domain and domian is mayor or
+  // equal that 1 hour
+  if domain_time.Sub(previous_domain_time) >= (1 * time.Hour) {
     // Set previous SSL grade to current domain
     domain.PreviousSslGrade = previous_domain.SslGrade
     // If changed status or SSL grade is enough to affirm that domain changed
@@ -80,28 +92,10 @@ func verifyServersChanges(domain, previous_domain *models.Domain)  {
     domain.IsDown != previous_domain.IsDown {
       domain.ServersChanged = true
     } else {
-      domain.ServersChanged = serversChanges(domain, previous_domain)
+      // Get servers of previous domain
+      previous_servers := models.GetServersByDomainDB(previous_domain)
+      // Compare changes in servers
+      domain.ServersChanged = models.ServersChanges(servers, previous_servers)
     }
   }
-}
-
-// Function to compare the servers of two domains
-func serversChanges(domain, previous_domain *models.Domain) bool {
-  // Get servers
-  servers := models.GetServersByDomainDB(domain)
-  previous_servers := models.GetServersByDomainDB(previous_domain)
-
-  // If number of servers is different then servers changed
-  if len(servers) != len(previous_servers) {
-    return true
-  }
-
-  // Compare all servers
-  for i, server := range servers {
-    if !server.Equal(previous_servers[i]) {
-      return true
-    }
-  }
-
-  return false
 }

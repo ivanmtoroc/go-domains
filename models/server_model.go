@@ -24,7 +24,7 @@ func (server *Server) Save(domain *Domain) {
   RETURNING id;
   `
   // Execute insertion
-  if err := getDB().QueryRow(
+  if err := GetDB().QueryRow(
       sql,
       server.Address,
       server.SslGrade,
@@ -67,7 +67,7 @@ func createServersTable() {
   );
   `
   // Execute statement
-  if _, err := getDB().Exec(sql); err != nil {
+  if _, err := GetDB().Exec(sql); err != nil {
     log.Println("Servers table creation error")
     log.Fatalln(err)
   }
@@ -83,7 +83,7 @@ func GetServersByDomainDB(domain *Domain) []*Server {
   ORDER BY address;
   `
   // Execute query
-  rows, err := getDB().Query(sql, domain.ID)
+  rows, err := GetDB().Query(sql, domain.ID)
   if err != nil {
       log.Println("Servers query error")
       log.Fatalln(err)
@@ -112,4 +112,21 @@ func GetServersByDomainDB(domain *Domain) []*Server {
     return nil
   }
   return servers
+}
+
+// Function to compare two [] of servers
+func ServersChanges(servers, previous_servers []*Server) bool {
+  // If number of servers is different then servers changed
+  if len(servers) != len(previous_servers) {
+    return true
+  }
+
+  // Compare all servers
+  for i, server := range servers {
+    if !server.Equal(previous_servers[i]) {
+      return true
+    }
+  }
+
+  return false
 }

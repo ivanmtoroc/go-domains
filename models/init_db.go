@@ -30,6 +30,6 @@ func CreateTables() {
 }
 
 // Function that return database connection object
-func getDB() *sql.DB {
+func GetDB() *sql.DB {
   return db
 }

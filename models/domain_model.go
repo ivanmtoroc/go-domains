@@ -29,7 +29,7 @@ func (domain *Domain) Save() {
   RETURNING id;
   `
   // Execute insertion
-  if err := getDB().QueryRow(
+  if err := GetDB().QueryRow(
       sql,
       domain.Name,
       domain.ServersChanged,
@@ -65,7 +65,7 @@ func createDomainsTable() {
   );
   `
   // Execute statement
-  if _, err := getDB().Exec(sql); err != nil {
+  if _, err := GetDB().Exec(sql); err != nil {
     log.Println("Domains table creation error")
     log.Fatalln(err)
   }
@@ -81,7 +81,7 @@ func GetDomainByNameDB(name string) *Domain {
   LIMIT 1;
   `
   // Execute query
-  rows, err := getDB().Query(sql, name)
+  rows, err := GetDB().Query(sql, name)
   if err != nil {
       log.Println("Domain query error")
       log.Fatalln(err)
@@ -131,7 +131,7 @@ func GetDomainsDB(skip, limit string) []*Domain {
     sql += "LIMIT " + limit + ";"
   }
   // Execute query
-  rows, err := getDB().Query(sql)
+  rows, err := GetDB().Query(sql)
   if err != nil {
       log.Println("Domains query error")
       log.Fatalln(err)
@@ -176,7 +176,7 @@ func GetDomainsCountDB() int {
   ) AND is_valid = TRUE
   `
   // Execute query
-  rows, err := getDB().Query(sql)
+  rows, err := GetDB().Query(sql)
   if err != nil {
       log.Println("Domains count query error")
       log.Fatalln(err)
