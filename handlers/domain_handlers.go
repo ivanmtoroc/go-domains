@@ -22,6 +22,11 @@ func GetDomain(w http.ResponseWriter, r *http.Request) {
 
   // Get 'domain_name' URL parameter
   if domain_name := chi.URLParam(r, "domain_name"); domain_name != "" {
+    // Validate domain_name
+    if is_valid := utilities.ValidateDomainName(domain_name); !is_valid {
+      render.Render(w, r, responses.ERROR_INVALID_DOMAIN)
+      return
+    }
     // Use scraper to get domain and servers info
     domain, servers, err = scraper.GetDomainByNameAPI(domain_name)
     // Validate if domain is not valid
