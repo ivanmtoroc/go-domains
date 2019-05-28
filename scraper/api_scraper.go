@@ -14,7 +14,7 @@ const API_URL = "https://api.ssllabs.com/api/v3/analyze?host="
 // Grades options in SSL Labs
 var GRADES = map[string]int {
   "A+": 1, "A-": 2, "A": 3, "B": 4, "C": 5, "D": 6,
-  "E": 7, "F": 8, "T": 9, "M": 10, "Invalid": 11,
+  "E": 7, "F": 8, "T": 9, "M": 10, "Unknown": 11,
 }
 
 // Function to get servers of domain by SSL Labs API
@@ -64,8 +64,8 @@ func consultAPI(domain *models.Domain) (map[string]interface{}, error) {
       }
     }
 
-    // Wait one second to next request
-    time.Sleep(1 * time.Second)
+    // Wait three seconds to next request
+    time.Sleep(3 * time.Second)
   }
 }
 
@@ -73,8 +73,9 @@ func consultAPI(domain *models.Domain) (map[string]interface{}, error) {
 func getServerFromResponse(domain *models.Domain, result map[string]interface{}) []*models.Server {
   var servers []*models.Server
 
-  // By default domain have the best SslGrade
+  // By default domain have the best SSL grade and is down
   domain.SslGrade = "A+"
+  domain.IsDown = true
 
   log.Println("  - Get endpoints")
 
@@ -89,11 +90,13 @@ func getServerFromResponse(domain *models.Domain, result map[string]interface{})
     log.Printf("        - IP: %s\n", ip)
 
     // By default all servers have invalid SSL
-    grade := "Invalid"
+    grade := "Unknown"
     status := endpoint["statusMessage"].(string)
     // If status is Ready get SSL grade
     if status == "Ready" {
       grade = endpoint["grade"].(string)
+      // If at least one server is up then domain is not down
+      domain.IsDown = false
     }
     log.Printf("        - Grade: %s\n", grade)
     // Update min SSL Grade of domain
@@ -114,6 +117,10 @@ func getServerFromResponse(domain *models.Domain, result map[string]interface{})
     // Create and add server to servers
     server := &models.Server{0, ip, grade, country, owner, domain.ID}
     servers = append(servers, server)
+  }
+
+  if domain.SslGrade == "Unknown" {
+    domain.SslGrade = ""
   }
 
   return servers
