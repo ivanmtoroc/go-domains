@@ -1,6 +1,7 @@
 package handlers
 
 import (
+  "fmt"
   "net/http"
   "go-domains/responses"
   "go-domains/models"
@@ -27,9 +28,12 @@ func GetItems(w http.ResponseWriter, r *http.Request) {
     limit_value = string(limit[0])
   }
 
+  fmt.Println("consulting valid domains into database")
+
   // Get domains history
   domains := models.GetDomainsDB(skip_value, limit_value)
   count := models.GetDomainsCountDB()
+  fmt.Printf("- total domains count: %d\n", count)
 
   // Render items response
   if err := render.Render(w, r, responses.CreateItemsResponse(domains, count)); err != nil {

@@ -1,7 +1,7 @@
 package main
 
 import (
-  "log"
+  "fmt"
   "net/http"
   "go-domains/handlers"
   "go-domains/models"
@@ -25,6 +25,6 @@ func main() {
     router.Get("/items", handlers.GetItems)
   })
 
-  log.Println("Server listening...")
+  fmt.Println("Server listening...")
   http.ListenAndServe(":3333", router)
 }

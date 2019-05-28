@@ -17,8 +17,8 @@ func InitDB() {
   // Open connection with database
   db, err = sql.Open("postgres", DB_ADDRESS)
   if err != nil {
-    log.Println("Database connection error")
-    log.Fatalln(err)
+    log.Println("database connection error")
+    log.Fatalln("- error: ", err)
   }
 }
 

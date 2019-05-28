@@ -41,8 +41,8 @@ func (domain *Domain) Save() {
       domain.IsValid,
       domain.CreatedAt,
     ).Scan(&domain.ID); err != nil {
-    log.Println("Domain insertion error")
-    log.Fatalln(err)
+    log.Println("domain insertion error into database")
+    log.Fatalln("- error: ", err)
   }
 }
 
@@ -66,8 +66,8 @@ func createDomainsTable() {
   `
   // Execute statement
   if _, err := GetDB().Exec(sql); err != nil {
-    log.Println("Domains table creation error")
-    log.Fatalln(err)
+    log.Println("domains table creation error into database")
+    log.Fatalln("- error: ", err)
   }
 }
 
@@ -83,8 +83,8 @@ func GetDomainByNameDB(name string) *Domain {
   // Execute query
   rows, err := GetDB().Query(sql, name)
   if err != nil {
-      log.Println("Domain query error")
-      log.Fatalln(err)
+    log.Println("domains table query error")
+    log.Fatalln("- error: ", err)
   }
   // Defer close
   defer rows.Close()
@@ -104,8 +104,8 @@ func GetDomainByNameDB(name string) *Domain {
           &domain.IsValid,
           &domain.CreatedAt,
         ); err != nil {
-          log.Println("Get last domain from database error")
-          log.Fatalln(err)
+          log.Println("error while get last domain from database")
+          log.Fatalln("- error: ", err)
       }
       return domain
   }
@@ -133,8 +133,8 @@ func GetDomainsDB(skip, limit string) []*Domain {
   // Execute query
   rows, err := GetDB().Query(sql)
   if err != nil {
-      log.Println("Domains query error")
-      log.Fatalln(err)
+    log.Println("domains table query error")
+    log.Fatalln("- error: ", err)
   }
   // Defer close
   defer rows.Close()
@@ -154,8 +154,8 @@ func GetDomainsDB(skip, limit string) []*Domain {
           &domain.IsValid,
           &domain.CreatedAt,
         ); err != nil {
-          log.Println("Get domain from database error")
-          log.Fatalln(err)
+          log.Println("error while get a domain from database")
+          log.Fatalln("- error: ", err)
       }
       domains = append(domains, domain)
   }
@@ -178,8 +178,8 @@ func GetDomainsCountDB() int {
   // Execute query
   rows, err := GetDB().Query(sql)
   if err != nil {
-      log.Println("Domains count query error")
-      log.Fatalln(err)
+    log.Println("domains table query error")
+    log.Fatalln("- error: ", err)
   }
   // Defer close
   defer rows.Close()
@@ -188,8 +188,8 @@ func GetDomainsCountDB() int {
   // Iterate rows of query result
   for rows.Next() {
       if err := rows.Scan(&count); err != nil {
-          log.Println("Get number of domains from database error")
-          log.Fatalln(err)
+        log.Println("error while get number of domains from database")
+        log.Fatalln("- error: ", err)
       }
   }
   return count

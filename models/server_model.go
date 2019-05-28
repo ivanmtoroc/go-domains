@@ -32,8 +32,8 @@ func (server *Server) Save(domain *Domain) {
       server.Owner,
       domain.ID,
     ).Scan(&server.ID); err != nil {
-    log.Println("Server insertion error")
-    log.Fatalln(err)
+    log.Println("server insertion error into database")
+    log.Fatalln("- error: ", err)
   }
 }
 
@@ -68,8 +68,8 @@ func createServersTable() {
   `
   // Execute statement
   if _, err := GetDB().Exec(sql); err != nil {
-    log.Println("Servers table creation error")
-    log.Fatalln(err)
+    log.Println("servers table creation error into database")
+    log.Fatalln("- error: ", err)
   }
 }
 
@@ -85,8 +85,8 @@ func GetServersByDomainDB(domain *Domain) []*Server {
   // Execute query
   rows, err := GetDB().Query(sql, domain.ID)
   if err != nil {
-      log.Println("Servers query error")
-      log.Fatalln(err)
+    log.Println("servers table query error")
+    log.Fatalln("- error: ", err)
   }
   // Defer close
   defer rows.Close()
@@ -102,8 +102,8 @@ func GetServersByDomainDB(domain *Domain) []*Server {
           &server.Owner,
           &server.DomainID,
         ); err != nil {
-          log.Println("Get server from database error")
-          log.Fatalln(err)
+          log.Println("error while get a server from database")
+          log.Fatalln("- error: ", err)
       }
       servers = append(servers, server)
   }

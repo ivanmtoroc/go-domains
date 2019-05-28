@@ -1,6 +1,7 @@
 package handlers
 
 import (
+  "fmt"
   "time"
   "net/http"
   "go-domains/responses"
@@ -90,8 +91,11 @@ func verifyServersChanges(domain *models.Domain, servers []*models.Server)  {
   // Compare info only if duration between previous domain and domian is mayor or
   // equal that 1 hour
   if domain_time.Sub(previous_domain_time) >= (1 * time.Hour) {
+    fmt.Println("verifying changes in servers")
+
     // Set previous SSL grade to current domain
     domain.PreviousSslGrade = previous_domain.SslGrade
+    fmt.Println("- previous_sslGrade: ", domain.PreviousSslGrade)
     // If changed status or SSL grade is enough to affirm that domain changed
     if domain.SslGrade != previous_domain.SslGrade ||
     domain.IsDown != previous_domain.IsDown {
@@ -102,5 +106,6 @@ func verifyServersChanges(domain *models.Domain, servers []*models.Server)  {
       // Compare changes in servers
       domain.ServersChanged = models.ServersChanges(servers, previous_servers)
     }
+    fmt.Println("- servers_changed: ", domain.ServersChanged)
   }
 }

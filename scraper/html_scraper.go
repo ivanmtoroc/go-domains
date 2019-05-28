@@ -1,6 +1,7 @@
 package scraper
 
 import (
+  "fmt"
   "log"
   "strings"
   "net/http"
@@ -12,31 +13,31 @@ import (
 func setIconAndTitle(domain *models.Domain) {
   url := "http://" + domain.Name
 
-  log.Println("  - Get title and icon:")
+  fmt.Println("get title and icon from web page")
 
   // Make http request (Method Get) to page of domain
   response, err := http.Get(url)
   if err != nil {
-    domain = nil
+    log.Println("get response to web page of domain failed")
     return
   }
   // Parse response body to HTML node tree
   element, _ := html.Parse(response.Body)
   // Get title from HTML node tree
   domain.Title, _ = getTitle(element)
-  log.Printf("    - Title: %s\n", domain.Title)
+  fmt.Printf("- title: %s\n", domain.Title)
 
   // Make http request (Method Get) to page of domain
   response, err = http.Get(url)
   if err != nil {
-    domain = nil
+    log.Println("get response to web page of domain failed")
     return
   }
   // Create HTML Tokenizer of response body
   document := html.NewTokenizer(response.Body)
   // Get Icon URL from Tokenizer
   domain.Logo = getIcon(document, url)
-  log.Printf("    - Logo: %s\n", domain.Logo)
+  fmt.Printf("- logo: %s\n", domain.Logo)
 }
 
 // Function that iterate in HTML Tokenaizer to find icon URL of HTML page

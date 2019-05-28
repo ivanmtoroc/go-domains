@@ -1,6 +1,7 @@
 package scraper
 
 import (
+  "fmt"
   "log"
   "time"
   "net/http"
@@ -40,13 +41,13 @@ func getServers(domain *models.Domain) ([]*models.Server, error) {
 func consultAPI(domain *models.Domain) (map[string]interface{}, error) {
   var result map[string]interface{}
 
-  log.Println("Consulting API | Host name: " + domain.Name)
+  fmt.Println("consulting API")
   for {
     // Make http request (Method Get) to API
     response, err := http.Get(API_URL + domain.Name)
     if err != nil {
       log.Println("API request error")
-      log.Println(err)
+      log.Println("- error: ", err)
       return nil, err
     }
 
@@ -55,7 +56,7 @@ func consultAPI(domain *models.Domain) (map[string]interface{}, error) {
     if err == nil {
       // Validate status of domain
       status := result["status"].(string)
-      log.Println("  - Status: " + status)
+      fmt.Println("- status: " + status)
       if status == "READY" {
         return result, nil
       } else if status == "ERROR" {
@@ -63,13 +64,12 @@ func consultAPI(domain *models.Domain) (map[string]interface{}, error) {
         return nil, nil
       }
     }
-
     // Wait three seconds to next request
     time.Sleep(3 * time.Second)
   }
 }
 
-//
+// Function to extract endpoints to API result
 func getServerFromResponse(domain *models.Domain, result map[string]interface{}) []*models.Server {
   var servers []*models.Server
 
@@ -77,17 +77,17 @@ func getServerFromResponse(domain *models.Domain, result map[string]interface{})
   domain.SslGrade = "A+"
   domain.IsDown = true
 
-  log.Println("  - Get endpoints")
+  fmt.Println("get endpoints to domain")
 
   // Iterate endpoints of JSON response
   for i, element := range result["endpoints"].([]interface{}) {
     // Type assertion to map
     endpoint := element.(map[string]interface{})
-    log.Printf("     - Endpoint %d:\n", i)
+    fmt.Printf("- endpoint %d\n", i)
 
     // Get IP of server
     ip := endpoint["ipAddress"].(string)
-    log.Printf("        - IP: %s\n", ip)
+    fmt.Printf(" - ip: %s\n", ip)
 
     // By default all servers have invalid SSL
     grade := "Unknown"
@@ -98,7 +98,7 @@ func getServerFromResponse(domain *models.Domain, result map[string]interface{})
       // If at least one server is up then domain is not down
       domain.IsDown = false
     }
-    log.Printf("        - Grade: %s\n", grade)
+    fmt.Printf(" - grade: %s\n", grade)
     // Update min SSL Grade of domain
     if GRADES[grade] > GRADES[domain.SslGrade] {
       domain.SslGrade = grade
@@ -107,20 +107,16 @@ func getServerFromResponse(domain *models.Domain, result map[string]interface{})
     // Execute whois command with IP of server to get country
     command := "whois " + ip + " | grep -E '(C|c)ountry' | head -n 1 | sed -E 's/(C|c)ountry: *//'"
     country := utilities.RunShCommant(command)
-    log.Printf("        - Country: %s\n", country)
+    fmt.Printf(" - country: %s\n", country)
 
     // Execute whois command with IP of server to get owner
     command = "whois " + ip + " | grep -E 'OrgName|org-name|owner' | head -n 1 | sed -E 's/(OrgName|org-name|owner): *//'"
     owner := utilities.RunShCommant(command)
-    log.Printf("        - Owner: %s\n", owner)
+    fmt.Printf(" - owner: %s\n", owner)
 
     // Create and add server to servers
     server := &models.Server{0, ip, grade, country, owner, domain.ID}
     servers = append(servers, server)
-  }
-
-  if domain.SslGrade == "Unknown" {
-    domain.SslGrade = ""
   }
 
   return servers
