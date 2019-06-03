@@ -1,11 +1,11 @@
 package utilities
 
 import (
-  "testing"
+	"testing"
 )
 
 func TestRunShCommand(t *testing.T) {
-  if stdout := RunShCommant("echo 'Hire me!'"); stdout != "Hire me!" {
-    t.Error("Command execution failed")
-  }
+	if stdout, _ := RunShCommant("echo 'Hire me!'"); stdout != "Hire me!" {
+		t.Error("command execution failed")
+	}
 }

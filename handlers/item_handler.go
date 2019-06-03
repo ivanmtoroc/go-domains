@@ -1,43 +1,48 @@
 package handlers
 
 import (
-  "fmt"
-  "net/http"
-  "go-domains/responses"
-  "go-domains/models"
-  "go-domains/utilities"
-  "github.com/go-chi/render"
+	"fmt"
+	"net/http"
+
+	"github.com/go-chi/render"
+	"github.com/ivanmtoroc/go-domains/models"
+	"github.com/ivanmtoroc/go-domains/responses"
+	"github.com/ivanmtoroc/go-domains/utilities"
 )
 
-// Function to handle requests to '/items' endpoint
+// GetItems is http handler to '/items' endpoint
 func GetItems(w http.ResponseWriter, r *http.Request) {
-  // Add CORS to response
-  utilities.SetCORS(w)
+	var offset, limit string
+	// Add CORS to response
+	utilities.SetCORS(w)
 
-  params := r.URL.Query()
+	// Get all url params
+	params := r.URL.Query()
 
-  skip := params["skip"]
-  skip_value := ""
-  if len(skip) > 0 {
-    skip_value = string(skip[0])
-  }
+	if len(params["offset"]) > 0 {
+		offset = string(params["offset"][0])
+	}
+	if len(params["limit"]) > 0 {
+		limit = string(params["limit"][0])
+	}
 
-  limit := params["limit"]
-  limit_value := ""
-  if len(limit) > 0 {
-    limit_value = string(limit[0])
-  }
+	fmt.Println("consulting valid domains into database")
+	// Get domains history
+	domains, err := models.GetDomainsDB(offset, limit)
+	if err != nil {
+		render.Render(w, r, responses.Error500)
+		return
+	}
+	count, errCount := models.GetDomainsCountDB()
+	if errCount != nil {
+		render.Render(w, r, responses.Error500)
+		return
+	}
+	fmt.Printf("- domains count: %d\n", count)
 
-  fmt.Println("consulting valid domains into database")
-
-  // Get domains history
-  domains := models.GetDomainsDB(skip_value, limit_value)
-  count := models.GetDomainsCountDB()
-  fmt.Printf("- total domains count: %d\n", count)
-
-  // Render items response
-  if err := render.Render(w, r, responses.CreateItemsResponse(domains, count)); err != nil {
-    render.Render(w, r, responses.ERROR_500)
-    return
-  }
+	// Create and render items response
+	if err := render.Render(w, r, responses.CreateItemsResponse(domains, count)); err != nil {
+		render.Render(w, r, responses.Error500)
+		return
+	}
 }

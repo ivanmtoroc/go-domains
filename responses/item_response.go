@@ -1,52 +1,60 @@
 package responses
 
 import (
-  "net/http"
-  "go-domains/models"
+	"net/http"
+
+	"github.com/ivanmtoroc/go-domains/models"
 )
 
-// Structs used to create items JSON responses
+// ItemInfoResponse structure to create items info JSON responses
 type ItemInfoResponse struct {
-  IsDown  bool    `json:"is_down"`
-  Logo    string  `json:"logo"`
-  Title   string  `json:"title"`
+	IsDown bool   `json:"is_down"`
+	Logo   string `json:"logo"`
+	Title  string `json:"title"`
 }
 
+// ItemResponse structure to create item JSON responses
 type ItemResponse struct {
-  Name  string             `json:"name"`
-  Info  *ItemInfoResponse  `json:"info"`
+	Name string            `json:"name"`
+	Info *ItemInfoResponse `json:"info"`
 }
 
+// ItemsResponse structure to create items JSON responses
 type ItemsResponse struct {
-  Items  []*ItemResponse  `json:"items"`
-  Count  int              `json:"total_items"`
+	Items []*ItemResponse `json:"items"`
+	Count int             `json:"total_items"`
 }
 
-// Create new items response by domains
+// CreateItemsResponse create new items response by domains
 func CreateItemsResponse(domains []*models.Domain, count int) *ItemsResponse {
-  var items_response []*ItemResponse = make([]*ItemResponse, 0)
-
-  // Create array of domains responses
-  for _, domain := range domains {
-    items_response = append(items_response, createItemResponse(domain))
-  }
-
-  return &ItemsResponse{items_response, count}
+	var itemsResponse = make([]*ItemResponse, 0)
+	// Create array of domains responses
+	for _, domain := range domains {
+		itemsResponse = append(itemsResponse, createItemResponse(domain))
+	}
+	// Create items respose
+	return &ItemsResponse{
+		Items: itemsResponse,
+		Count: count,
+	}
 }
 
-// Create new item response by domain
+// createItemResponse create new item response by domain
 func createItemResponse(domain *models.Domain) *ItemResponse {
-  // Get info to new item
-  item_info := &ItemInfoResponse{
-    domain.IsDown,
-    domain.Logo,
-    domain.Title,
-  }
-
-  return &ItemResponse{domain.Name, item_info}
+	// Get info to new item
+	itemInfo := &ItemInfoResponse{
+		IsDown: domain.IsDown,
+		Logo:   domain.Logo,
+		Title:  domain.Title,
+	}
+	// Create item respose
+	return &ItemResponse{
+		Name: domain.Name,
+		Info: itemInfo,
+	}
 }
 
-// Method used to Renderer interface of go-chi/render for managing response payloads
+// Render is a method of Renderer interface of go-chi/render for managing response payloads
 func (ir *ItemsResponse) Render(w http.ResponseWriter, r *http.Request) error {
-  return nil
+	return nil
 }

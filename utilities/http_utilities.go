@@ -1,10 +1,10 @@
 package utilities
 
 import (
-  "net/http"
+	"net/http"
 )
 
-// Function to set CORS to header response
+// SetCORS set CORS policies to header response to allow all origins
 func SetCORS(w http.ResponseWriter) {
-  w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 }

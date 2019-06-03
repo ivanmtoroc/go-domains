@@ -1,54 +1,171 @@
 package models
 
 import (
-  "log"
-  "time"
+	"log"
+	"time"
 )
 
-// Struct used to manipulate database domain objects
+// Domain structure manipulate data of domains table into database
 type Domain struct {
-  ID                int64
-  Name              string
-  ServersChanged    bool
-  SslGrade          string
-  PreviousSslGrade  string
-  Logo              string
-  Title             string
-  IsDown            bool
-  IsValid           bool
-  CreatedAt         time.Time
+	ID               int64
+	Name             string
+	ServersChanged   bool
+	SslGrade         string
+	PreviousSslGrade string
+	Logo             string
+	Title            string
+	IsDown           bool
+	IsValid          bool
+	CreatedAt        time.Time
 }
 
-// Domain method to save a domain into database
-func (domain *Domain) Save() {
-  sql := `
+// Save method save domain into database
+func (domain *Domain) Save() error {
+	// SQL instruction to insert new domain in domains table
+	sql := `
   INSERT INTO domains
   (name, servers_changed, ssl_grade, previous_ssl_grade, logo, title, is_down, is_valid, created_at)
   VALUES
   ($1, $2, $3, $4, $5, $6, $7, $8, $9)
   RETURNING id;
   `
-  // Execute insertion
-  if err := GetDB().QueryRow(
-      sql,
-      domain.Name,
-      domain.ServersChanged,
-      domain.SslGrade,
-      domain.PreviousSslGrade,
-      domain.Logo,
-      domain.Title,
-      domain.IsDown,
-      domain.IsValid,
-      domain.CreatedAt,
-    ).Scan(&domain.ID); err != nil {
-    log.Println("domain insertion error into database")
-    log.Fatalln("- error: ", err)
-  }
+	// Execute SQL instruction to insert new domain and get your ID
+	if err := GetDB().QueryRow(
+		sql,
+		domain.Name,
+		domain.ServersChanged,
+		domain.SslGrade,
+		domain.PreviousSslGrade,
+		domain.Logo,
+		domain.Title,
+		domain.IsDown,
+		domain.IsValid,
+		domain.CreatedAt,
+	).Scan(&domain.ID); err != nil {
+		log.Println("domain insertion error")
+		log.Println("- error: ", err)
+		return err
+	}
+	return nil
 }
 
-// Function to create domains table into database
+// GetDomainByNameDB get most recent domain saved into database by name
+func GetDomainByNameDB(name string) (*Domain, error) {
+	// SQL query to get last saved domain
+	sql := `
+  SELECT *
+  FROM domains
+  WHERE name = $1
+  ORDER BY created_at DESC
+  LIMIT 1;
+	`
+	// Execute query
+	rows, err := GetDB().Query(sql, name)
+	if err != nil {
+		log.Println("most recent domain query error")
+		log.Println("- error: ", err)
+		return nil, err
+	}
+	// Close rows when function end
+	defer rows.Close()
+
+	for rows.Next() {
+		domain := &Domain{}
+		// Save current row data in new domain object
+		if err := rows.Scan(
+			&domain.ID,
+			&domain.Name,
+			&domain.ServersChanged,
+			&domain.SslGrade,
+			&domain.PreviousSslGrade,
+			&domain.Logo,
+			&domain.Title,
+			&domain.IsDown,
+			&domain.IsValid,
+			&domain.CreatedAt,
+		); err != nil {
+			log.Println("most recent domains scan error")
+			log.Println("- error: ", err)
+			return nil, err
+		}
+		return domain, nil
+	}
+	return nil, nil
+}
+
+// GetDomainsDB get part (by offset and limit) of most recent and valid domains into database
+func GetDomainsDB(offset, limit string) ([]*Domain, error) {
+	var domains []*Domain
+	// SQL query to get part of most recent and valid domains into database
+	sql := `
+  SELECT *
+  FROM domains AS d1
+  WHERE created_at = (
+      SELECT MAX(created_at) FROM domains AS d2 WHERE d1.name = d2.name
+  ) AND is_valid = TRUE
+  ORDER BY name
+  OFFSET $1
+  LIMIT $2;
+  `
+	// Execute query
+	rows, err := GetDB().Query(sql, offset, limit)
+	if err != nil {
+		log.Println("most recent domains query error")
+		log.Println("- error: ", err)
+		return nil, err
+	}
+	// Close rows when function end
+	defer rows.Close()
+
+	// Iterate rows of query result
+	for rows.Next() {
+		domain := &Domain{}
+		// Save current row data in new domain object
+		if err := rows.Scan(
+			&domain.ID,
+			&domain.Name,
+			&domain.ServersChanged,
+			&domain.SslGrade,
+			&domain.PreviousSslGrade,
+			&domain.Logo,
+			&domain.Title,
+			&domain.IsDown,
+			&domain.IsValid,
+			&domain.CreatedAt,
+		); err != nil {
+			log.Println("most recent domains scan error")
+			log.Println("- error: ", err)
+			return nil, err
+		}
+		domains = append(domains, domain)
+	}
+	return domains, nil
+}
+
+// GetDomainsCountDB get the number of all most recent and valid domains into database
+func GetDomainsCountDB() (int, error) {
+	var count int
+	// SQL query to get the number of all most recent and valid domains into database
+	sql := `
+  SELECT COUNT(id)
+  FROM domains AS d1
+  WHERE created_at = (
+      SELECT MAX(created_at) FROM domains AS d2 WHERE d1.name = d2.name
+  ) AND is_valid = TRUE
+  `
+	// Execute query
+	if err := GetDB().QueryRow(sql).Scan(&count); err != nil {
+		log.Println("domains table query error")
+		log.Println("- error: ", err)
+		return count, err
+	}
+	return count, nil
+}
+
+// createDomainsTable create the domains table into database if not exists
 func createDomainsTable() {
-  sql := `
+	// SQL instructions to create new sequence and domains table if not exists
+	sql := `
   CREATE SEQUENCE IF NOT EXISTS domains_seq;
 
   CREATE TABLE IF NOT EXISTS domains (
@@ -64,133 +181,9 @@ func createDomainsTable() {
     created_at TIMESTAMP NOT NULL
   );
   `
-  // Execute statement
-  if _, err := GetDB().Exec(sql); err != nil {
-    log.Println("domains table creation error into database")
-    log.Fatalln("- error: ", err)
-  }
-}
-
-// Function to get most recent domain from database by name
-func GetDomainByNameDB(name string) *Domain {
-  sql := `
-  SELECT *
-  FROM domains
-  WHERE name = $1
-  ORDER BY created_at DESC
-  LIMIT 1;
-  `
-  // Execute query
-  rows, err := GetDB().Query(sql, name)
-  if err != nil {
-    log.Println("domains table query error")
-    log.Fatalln("- error: ", err)
-  }
-  // Defer close
-  defer rows.Close()
-
-  // Iterate rows of query result
-  for rows.Next() {
-      domain := &Domain{}
-      if err := rows.Scan(
-          &domain.ID,
-          &domain.Name,
-          &domain.ServersChanged,
-          &domain.SslGrade,
-          &domain.PreviousSslGrade,
-          &domain.Logo,
-          &domain.Title,
-          &domain.IsDown,
-          &domain.IsValid,
-          &domain.CreatedAt,
-        ); err != nil {
-          log.Println("error while get last domain from database")
-          log.Fatalln("- error: ", err)
-      }
-      return domain
-  }
-  return nil
-}
-
-// Function to get all domains
-func GetDomainsDB(skip, limit string) []*Domain {
-  var domains []*Domain
-  sql := `
-  SELECT *
-  FROM domains AS d1
-  WHERE created_at = (
-      SELECT MAX(created_at) FROM domains AS d2 WHERE d1.name = d2.name
-  ) AND is_valid = TRUE
-  ORDER BY name
-  `
-  // Add offset and limit filters to query
-  if skip != "" {
-    sql += "OFFSET " + skip + " "
-  }
-  if limit != "" {
-    sql += "LIMIT " + limit + ";"
-  }
-  // Execute query
-  rows, err := GetDB().Query(sql)
-  if err != nil {
-    log.Println("domains table query error")
-    log.Fatalln("- error: ", err)
-  }
-  // Defer close
-  defer rows.Close()
-
-  // Iterate rows of query result
-  for rows.Next() {
-      domain := &Domain{}
-      if err := rows.Scan(
-          &domain.ID,
-          &domain.Name,
-          &domain.ServersChanged,
-          &domain.SslGrade,
-          &domain.PreviousSslGrade,
-          &domain.Logo,
-          &domain.Title,
-          &domain.IsDown,
-          &domain.IsValid,
-          &domain.CreatedAt,
-        ); err != nil {
-          log.Println("error while get a domain from database")
-          log.Fatalln("- error: ", err)
-      }
-      domains = append(domains, domain)
-  }
-  // Validate result
-  if len(domains) == 0 {
-    return nil
-  }
-  return domains
-}
-
-// Function to get the number of valid domains in database
-func GetDomainsCountDB() int {
-  sql := `
-  SELECT COUNT(id)
-  FROM domains AS d1
-  WHERE created_at = (
-      SELECT MAX(created_at) FROM domains AS d2 WHERE d1.name = d2.name
-  ) AND is_valid = TRUE
-  `
-  // Execute query
-  rows, err := GetDB().Query(sql)
-  if err != nil {
-    log.Println("domains table query error")
-    log.Fatalln("- error: ", err)
-  }
-  // Defer close
-  defer rows.Close()
-
-  count := 0
-  // Iterate rows of query result
-  for rows.Next() {
-      if err := rows.Scan(&count); err != nil {
-        log.Println("error while get number of domains from database")
-        log.Fatalln("- error: ", err)
-      }
-  }
-  return count
+	// Execute SQL instructions
+	if _, err := GetDB().Exec(sql); err != nil {
+		log.Println("domains table creation error")
+		log.Fatalln("- error: ", err)
+	}
 }

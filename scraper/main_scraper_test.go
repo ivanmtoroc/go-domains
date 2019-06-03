@@ -1,16 +1,17 @@
 package scraper
 
 import (
-  "testing"
+	"testing"
 )
 
 func TestGetDomainAPI(t *testing.T) {
-  domain, servers, err := GetDomainByNameAPI("truora.com")
-  if err != nil {
-    t.Error("Get domain info from API failed")
-  }
+	domainName := "truora.com"
+	domain, _, err := GetDomainByNameAPI(domainName)
 
-  if domain.Title != "Truora" {
-    t.Error("Title of Truora web page is wrong")
-  }
+	if err != nil {
+		t.Error("get domain info from API failed")
+	}
+	if domain.Title != "Truora" {
+		t.Error("get title to Truora web page failed")
+	}
 }

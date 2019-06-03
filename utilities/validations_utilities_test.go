@@ -1,19 +1,19 @@
 package utilities
 
 import (
-  "testing"
+	"testing"
 )
 
 func TestValidateDomainName(t *testing.T) {
-  var domain_name string
+	var domainName string
 
-  domain_name = "truora.com"
-  if is_valid := ValidateDomainName(domain_name); !is_valid {
-    t.Error("Domain name is actually valid")
-  }
+	domainName = "truora.com"
+	if isValid, _ := ValidateDomainName(domainName); !isValid {
+		t.Error("domain name is actually valid")
+	}
 
-  domain_name = "SELECT * FROM domains;"
-  if is_valid := ValidateDomainName(domain_name); is_valid {
-    t.Error("Domain name is actually invalid")
-  }
+	domainName = "SELECT * FROM domains;"
+	if isValid, _ := ValidateDomainName(domainName); isValid {
+		t.Error("domain name is actually invalid")
+	}
 }

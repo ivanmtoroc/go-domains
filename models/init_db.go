@@ -1,35 +1,38 @@
 package models
 
 import (
-  "log"
-  "database/sql"
-  _ "github.com/lib/pq"
+	"database/sql"
+	"log"
+
+	// Dependency to start connection to database
+	_ "github.com/lib/pq"
 )
 
-// Database connection object
+// db is the database connection object
 var db *sql.DB
 
+// InitDB function init the connection to database
 func InitDB() {
-  // Address used to init connection
-  const DB_ADDRESS = "postgresql://ivanmtoroc@localhost:26257/domains?sslmode=disable"
-  var err error
+	// DbAddress used to init connection
+	const DbAddress = "postgresql://ivanmtoroc@localhost:26257/domains?sslmode=disable"
+	var err error
 
-  // Open connection with database
-  db, err = sql.Open("postgres", DB_ADDRESS)
-  if err != nil {
-    log.Println("database connection error")
-    log.Fatalln("- error: ", err)
-  }
+	// Open connection
+	db, err = sql.Open("postgres", DbAddress)
+	if err != nil {
+		log.Println("database connection error")
+		log.Fatalln("- error: ", err)
+	}
 }
 
-// Function that execute SQL stament to create tables into database
+// CreateTables execute SQL staments to create tables into database
 func CreateTables() {
-  // Create 'domains' and 'servers' tables into database
-  createDomainsTable()
-  createServersTable()
+	// Create 'domains' and 'servers' tables into database
+	createDomainsTable()
+	createServersTable()
 }
 
-// Function that return database connection object
+// GetDB return the database connection object
 func GetDB() *sql.DB {
-  return db
+	return db
 }

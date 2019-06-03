@@ -1,31 +1,66 @@
 package handlers
 
 import (
-  "time"
-  "testing"
-  "go-domains/models"
+	"testing"
+	"time"
+
+	"github.com/ivanmtoroc/go-domains/models"
 )
 
 func TestVerifyServersChanges(t *testing.T) {
-  now := time.Now()
+	now := time.Now()
 
-  previous_domain := &models.Domain{0, "truora.com", false, "A", "", "", "", false, true, now}
-  previous_domain.Save()
-  previous_server_one := &models.Server{0, "32.32.32.32", "A", "CO", "Amazon", 0}
-  previous_server_one.Save(previous_domain)
-  previous_server_two := &models.Server{0, "33.33.33.33", "B", "US", "Google", 0}
-  previous_server_two.Save(previous_domain)
+	previousDomain := &models.Domain{
+		Name:      "truora.com",
+		SslGrade:  "A",
+		IsValid:   true,
+		CreatedAt: now,
+	}
+	previousDomain.Save()
 
-  domain := &models.Domain{1, "truora.com", false, "A", "", "", "", false, true, now.Add(time.Hour)}
-  var servers []*models.Server
-  server_one := &models.Server{0, "32.32.32.32", "A", "CO", "Amazon", 1}
-  servers = append(servers, server_one)
-  server_two := &models.Server{0, "33.33.33.32", "B", "US", "Google", 1}
-  servers = append(servers, server_two)
+	previousServerOne := &models.Server{
+		Address:  "32.32.32.32",
+		SslGrade: "A",
+		Country:  "CO",
+		Owner:    "Amazon",
+	}
+	previousServerOne.Save(previousDomain)
 
-  verifyServersChanges(domain, servers)
+	previousServerTwo := &models.Server{
+		Address:  "33.33.33.33",
+		SslGrade: "B",
+		Country:  "US",
+		Owner:    "Google",
+	}
+	previousServerTwo.Save(previousDomain)
 
-  if !domain.ServersChanged {
-    t.Error("Servers actually changed")
-  }
+	domain := &models.Domain{
+		Name:      "truora.com",
+		SslGrade:  "A",
+		IsValid:   true,
+		CreatedAt: now.Add(time.Hour),
+	}
+
+	var servers []*models.Server
+	serverOne := &models.Server{
+		Address:  "32.32.32.32",
+		SslGrade: "A",
+		Country:  "CO",
+		Owner:    "Amazon",
+	}
+	servers = append(servers, serverOne)
+
+	serverTwo := &models.Server{
+		Address:  "33.33.33.32",
+		SslGrade: "B",
+		Country:  "US",
+		Owner:    "Google",
+	}
+	servers = append(servers, serverTwo)
+
+	verifyServersChanges(domain, servers)
+
+	if !domain.ServersChanged {
+		t.Error("servers actually changed")
+	}
 }

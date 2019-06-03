@@ -1,30 +1,37 @@
 package scraper
 
 import (
-  "fmt"
-  "time"
-  "go-domains/models"
+	"fmt"
+	"time"
+
+	"github.com/ivanmtoroc/go-domains/models"
 )
 
-// Funtion that return domain information and servers by domain name
-func GetDomainByNameAPI(domain_name string) (*models.Domain, []*models.Server, error) {
-  // Create initial domain object
-  domain := &models.Domain{0, domain_name, false, "", "", "Icon not found", "Title not found", false, true, time.Now()}
+// GetDomainByNameAPI return domain and servers information by domain name
+func GetDomainByNameAPI(domainName string) (*models.Domain, []*models.Server, error) {
+	// Create initial domain object
+	domain := &models.Domain{
+		Name:      domainName,
+		Logo:      "Logo not found",
+		Title:     "Title not found",
+		IsValid:   true,
+		CreatedAt: time.Now(),
+	}
 
-  fmt.Println("get information to domain: ", domain_name)
+	fmt.Println("get information to domain: ", domainName)
 
-  // Get servers and complete information of domain object from SSL Labs API
-  servers, err := getServers(domain)
-  if err != nil {
-    return nil, nil, err
-  } else if !domain.IsValid {
-    return domain, nil, nil
-  }
+	// Get domain and servers information from SSL Labs API
+	servers, err := getServers(domain)
+	if err != nil {
+		return nil, nil, err
+	} else if !domain.IsValid {
+		return domain, nil, nil
+	}
 
-  // Set Icon and Title to domain by html scraper
-  if !domain.IsDown {
-    setIconAndTitle(domain)
-  }
+	// Get logo and title to domain using HTML scraping
+	if !domain.IsDown {
+		getLogoAndTitle(domain)
+	}
 
-  return domain, servers, nil
+	return domain, servers, nil
 }

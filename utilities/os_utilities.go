@@ -1,24 +1,24 @@
 package utilities
 
 import (
-  "log"
-  "bytes"
-  "os/exec"
-  "strings"
+	"bytes"
+	"log"
+	"os/exec"
+	"strings"
 )
 
-// Function to execute bash command
-func RunShCommant(command string) string {
-  var out bytes.Buffer
+// RunShCommant execute bash command and return the stdout
+func RunShCommant(command string) (string, error) {
+	var output bytes.Buffer
+	// -c flag mean that input is a command
+	cmd := exec.Command("/bin/bash", "-c", command)
+	cmd.Stdout = &output
 
-  // -c flag mean that
-  cmd := exec.Command("/bin/bash", "-c", command)
-  cmd.Stdout = &out
-
-  if err := cmd.Run(); err != nil {
-    log.Println("bash command execution failed")
-    log.Println("- command: ", command)
-    log.Fatalln("- error: ", err)
-  }
-  return strings.TrimSuffix(out.String(), "\n")
+	if err := cmd.Run(); err != nil {
+		log.Println("bash command execution failed")
+		log.Println("- command: ", command)
+		log.Println("- error: ", err)
+		return "", err
+	}
+	return strings.TrimSuffix(output.String(), "\n"), nil
 }

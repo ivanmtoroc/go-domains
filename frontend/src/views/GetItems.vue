@@ -45,7 +45,7 @@ export default {
     ...mapActions('utilities', ['get']),
     async getItems () {
       this.loading = true
-      let url = `items?limit=${this.limit}&skip=${this.skip}`
+      let url = `items?limit=${this.limit}&offset=${this.skip}`
       let data = await this.get(url)
       this.items = { 'items': data['items'] }
       this.itemsNumber = data['total_items']

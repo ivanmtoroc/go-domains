@@ -1,26 +1,34 @@
 package models
 
 import (
-  "time"
-  "testing"
+	"testing"
+	"time"
 )
 
 func TestDomainSaveAndGet(t *testing.T) {
-  domain_one := &Domain{0, "truora.com", false, "", "", "", "", false, false, time.Now()}
-  domain_one.Save()
-  domain_two := &Domain{0, "truora.com", false, "", "", "", "", false, true, time.Now()}
-  domain_two.Save()
+	domainOne := &Domain{
+		Name:      "truora.com",
+		CreatedAt: time.Now(),
+	}
+	domainOne.Save()
 
-  database_domain := GetDomainByNameDB(domain_two.Name)
-  if database_domain.ID != domain_two.ID {
-    t.Error("Domain not save")
-  }
+	domainTwo := &Domain{
+		Name:      "truora.com",
+		IsValid:   true,
+		CreatedAt: time.Now(),
+	}
+	domainTwo.Save()
 
-  if count := GetDomainsCountDB(); count != 1 {
-    t.Error("Domains count failed")
-  }
+	databaseDomain, _ := GetDomainByNameDB(domainTwo.Name)
+	if databaseDomain.ID != domainTwo.ID {
+		t.Error("Domain not save")
+	}
 
-  if domains := GetDomainsDB("", ""); domains[0].ID != domain_two.ID {
-    t.Error("Domains order invalid")
-  }
+	if count, _ := GetDomainsCountDB(); count != 1 {
+		t.Error("Domains count failed")
+	}
+
+	if domains, _ := GetDomainsDB("0", "10"); domains[0].ID != domainTwo.ID {
+		t.Error("Domains order invalid")
+	}
 }
