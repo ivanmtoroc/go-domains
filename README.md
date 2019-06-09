@@ -1,23 +1,25 @@
 # Go Domains
 
-> Development using Golang and Vue.js
+Web application to get information about any domain.
 
-Web application to get information of a any domain.
+The information is getted from [SSL Labs](https://www.ssllabs.com/), web scraping and [Whois](http://manpages.ubuntu.com/manpages/bionic/man1/whois.1.html).
 
-## Install dependecies
+This application is development using Golang and Vue.js.
+
+## Dependecies
 
 ```bash
-# Whois bin
-sudo apt install whois # In Ubuntu
+# install Whois bin in Ubuntu
+sudo apt install whois
 
-# Golang dependecies
+# install Go dependecies
 go get -u github.com/lib/pq
 go get -u github.com/go-chi/chi
 go get -u github.com/go-chi/render
 go get -u golang.org/x/net/html
 ```
 
-## Run project
+## Run
 
 1. Clone Github repository:
 
@@ -29,14 +31,14 @@ go get -u golang.org/x/net/html
 2. Start CockroachDB node:
 
     ```bash
-    # console session 01
+    # console session 0
     cockroach start --insecure --listen-addr=localhost # --background
     ```
 
 3. Start backend server:
 
     ```bash
-    # console session 02
+    # console session 1
     cockroach sql --insecure < models/config/init_db.sql
     go run main.go
     ```
@@ -44,7 +46,7 @@ go get -u golang.org/x/net/html
 4. Start frontend server:
 
     ```bash
-    # console session 03
+    # console session 2
     cd frontend/
     npm i
     npm run dev
