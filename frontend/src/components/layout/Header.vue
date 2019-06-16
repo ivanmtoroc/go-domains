@@ -4,7 +4,9 @@
       <h1>Go Domains!</h1>
       <p>
         &lt;&gt; with &lt;3 by
-        <a class="vue-green" href="http://ivanmtoroc.me" target="_blank">@ivanmtoroc</a>
+        <a class="vue-green" href="http://ivanmtoroc.me" target="_blank">
+          @ivanmtoroc
+        </a>
       </p>
     </b-navbar-brand>
   </b-navbar>
@@ -16,8 +18,5 @@
 }
 p, h1 {
   color: white;
-}
-a:hover {
-  color: #2EDC8E;
 }
 </style>

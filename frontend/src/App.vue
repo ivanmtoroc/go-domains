@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import HeaderComponent from '@/components/Header'
+import HeaderComponent from '@/components/layout/Header'
 
 export default {
   components: {
@@ -51,8 +51,12 @@ export default {
 a {
   text-decoration: none;
 }
+p {
+  font-size: 20px;
+}
 a:hover {
   text-decoration: none !important;
+  color: #2EDC8E;
 }
 h2 {
   font-size: 40px !important;

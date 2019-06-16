@@ -1,5 +1,5 @@
 <template>
-  <b-card class="mt-3" header="API Result">
+  <b-card class="mt-3" header="JSON viewer">
     <div v-if="loading" class="text-center">
       <b-spinner variant="success" label="Spinning"></b-spinner>
     </div>

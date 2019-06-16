@@ -10,16 +10,24 @@
         pattern="^[a-zA-Z0-9-.]*$"
         required
         />
-      <b-button :disabled="loading" type="submit" variant="success">Get</b-button>
-    </b-form-group>
-  </b-form>
-  <ApiViewer :result="result" :loading="loading"/>
-</div>
+        <b-button :disabled="loading" type="submit" variant="success">Get</b-button>
+      </b-form-group>
+    </b-form>
+    <b-tabs class="mt-3" content-class="mt-3" pills justified>
+      <b-tab title="Web">
+        <Domain :result="result"/>
+      </b-tab>
+      <b-tab title="JSON">
+        <JsonViewer :result="result" :loading="loading"/>
+      </b-tab>
+    </b-tabs>
+  </div>
 </template>
 
 <script>
 import http from '@/utilities/http'
-import ApiViewer from '@/components/ApiViewer.vue'
+import JsonViewer from '@/components/JsonViewer'
+import Domain from '@/components/Domain'
 
 var re = /^[a-zA-Z0-9-.]*$/
 
@@ -32,7 +40,8 @@ export default {
     }
   },
   components: {
-    ApiViewer
+    JsonViewer,
+    Domain
   },
   methods: {
     async getDomain (evt) {
