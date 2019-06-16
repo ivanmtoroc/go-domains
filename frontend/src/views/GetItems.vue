@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import http from '@/utilities/http'
 import ApiViewer from '@/components/ApiViewer.vue'
 
 export default {
@@ -42,11 +42,10 @@ export default {
     ApiViewer
   },
   methods: {
-    ...mapActions('utilities', ['get']),
     async getItems () {
       this.loading = true
       let url = `items?limit=${this.limit}&offset=${this.skip}`
-      let data = await this.get(url)
+      let data = await http.get(url)
       this.items = { 'items': data['items'] }
       this.itemsNumber = data['total_items']
       this.loading = false

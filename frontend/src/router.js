@@ -11,9 +11,24 @@ export default new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
-    { path: '/', name: 'domains', component: GetDomain },
-    { path: '/items', name: 'items', component: GetItems },
-    { path: '/about', name: 'about', component: About },
-    { path: '*', redirect: '/' }
+    {
+      path: '/',
+      name: 'domains',
+      component: GetDomain
+    },
+    {
+      path: '/items',
+      name: 'items',
+      component: GetItems
+    },
+    {
+      path: '/about',
+      name: 'about',
+      component: About
+    },
+    {
+      path: '*',
+      redirect: '/'
+    }
   ]
 })

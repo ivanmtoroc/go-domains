@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import http from '@/utilities/http'
 import ApiViewer from '@/components/ApiViewer.vue'
 
 var re = /^[a-zA-Z0-9-.]*$/
@@ -35,11 +35,10 @@ export default {
     ApiViewer
   },
   methods: {
-    ...mapActions('utilities', ['get']),
     async getDomain (evt) {
       evt.preventDefault()
       this.loading = true
-      this.result = await this.get('domains/' + this.domain)
+      this.result = await http.get('domains/' + this.domain)
       this.loading = false
     }
   },
