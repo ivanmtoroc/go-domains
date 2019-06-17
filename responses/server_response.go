@@ -7,7 +7,7 @@ import (
 // ServerResponse structure to create servers JSON responses
 type ServerResponse struct {
 	Address  string `json:"address"`
-	SslGrade string `json:"ssl_grade"`
+	SslGrade string `json:"sslGrade"`
 	Country  string `json:"country"`
 	Owner    string `json:"owner"`
 }

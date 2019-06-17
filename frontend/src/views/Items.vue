@@ -4,15 +4,19 @@
     <b-row align-h="start">
       <b-col sm="12" md="4" lg="2">
         <b-dropdown :text="strLimit" variant="primary" class="m-2">
-          <b-dropdown-item @click="setLimit(10)">10</b-dropdown-item>
-          <b-dropdown-item @click="setLimit(20)">20</b-dropdown-item>
-          <b-dropdown-item @click="setLimit(30)">30</b-dropdown-item>
-          <b-dropdown-item @click="setLimit(50)">50</b-dropdown-item>
+          <b-dropdown-item
+            v-for="(value, index) in perPageValues"
+            :key="index"
+            @click="updateLimit(value)"
+          >
+            {{ value }}
+          </b-dropdown-item>
         </b-dropdown>
       </b-col>
       <b-col sm="12" md="6">
         <b-pagination
-          v-model="currentPage"
+          page="currentPage"
+          @input="updateCurrentPage"
           :total-rows="itemsNumber"
           :per-page="limit"
           class="m-2"
@@ -21,60 +25,68 @@
     </b-row>
     <b-tabs class="mt-3" content-class="mt-3" pills justified>
       <b-tab title="Web">
-        <h6>Code domains web viewer here!</h6>
+        <b-card>
+          <div v-if="isLoading" class="text-center">
+            <b-spinner variant="success" label="Spinning"></b-spinner>
+          </div>
+          <b-card-text v-else>
+            <b-list-group>
+              <Item
+                v-for="(item, index) in items"
+                :key="index"
+                :item="item"
+              />
+            </b-list-group>
+          </b-card-text>
+        </b-card>
       </b-tab>
       <b-tab title="JSON">
-        <JsonViewer :result="items" :loading="loading"/>
+        <JsonViewer :data="{ items: items }" :isLoading="isLoading"/>
       </b-tab>
     </b-tabs>
   </div>
 </template>
 
 <script>
-import http from '@/utilities/http'
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
+import Item from '@/components/Item'
 import JsonViewer from '@/components/JsonViewer'
 
 export default {
-  data () {
-    return {
-      items: {},
-      itemsNumber: 0,
-      limit: 0,
-      skip: 0,
-      currentPage: 1,
-      loading: true
-    }
-  },
   components: {
+    Item,
     JsonViewer
   },
-  methods: {
-    async getItems () {
-      this.loading = true
-      let url = `items?limit=${this.limit}&offset=${this.skip}`
-      let data = await http.get(url)
-      this.items = { 'items': data['items'] }
-      this.itemsNumber = data['total_items']
-      this.loading = false
-    },
-    setLimit (limit) {
-      this.limit = limit
-      this.getItems()
-    }
-  },
-  watch: {
-    currentPage (value) {
-      this.skip = this.limit * (value - 1)
-      this.getItems()
-    }
-  },
   computed: {
-    strLimit () {
-      return this.limit.toString()
+    ...mapState('items', [
+      'items',
+      'itemsNumber',
+      'limit',
+      'offset',
+      'currentPage',
+      'perPageValues',
+      'isLoading'
+    ]),
+    ...mapGetters('items', [
+      'strLimit'
+    ])
+  },
+  methods: {
+    ...mapMutations('items', [
+      'setCurrentPage'
+    ]),
+    ...mapActions('items', [
+      'getItems',
+      'updateLimit',
+      'updateOffset'
+    ]),
+    updateCurrentPage (value) {
+      this.setCurrentPage(value)
+      this.updateOffset(this.limit * (value - 1))
     }
   },
   mounted () {
-    this.setLimit(10)
+    this.updateLimit(this.perPageValues[0])
   }
 }
 </script>

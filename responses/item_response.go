@@ -8,7 +8,7 @@ import (
 
 // ItemInfoResponse structure to create items info JSON responses
 type ItemInfoResponse struct {
-	IsDown bool   `json:"is_down"`
+	IsDown bool   `json:"isDown"`
 	Logo   string `json:"logo"`
 	Title  string `json:"title"`
 }
@@ -22,7 +22,7 @@ type ItemResponse struct {
 // ItemsResponse structure to create items JSON responses
 type ItemsResponse struct {
 	Items []*ItemResponse `json:"items"`
-	Count int             `json:"total_items"`
+	Count int             `json:"totalItems"`
 }
 
 // CreateItemsResponse create new items response by domains

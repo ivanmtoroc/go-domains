@@ -9,12 +9,12 @@ import (
 // DomainResponse structure to create domains JSON responses
 type DomainResponse struct {
 	Servers          []*ServerResponse `json:"servers"`
-	ServersChanged   bool              `json:"servers_changed"`
-	SslGrade         string            `json:"ssl_grade"`
-	PreviousSslGrade string            `json:"previous_ssl_grade"`
+	ServersChanged   bool              `json:"serversChanged"`
+	SslGrade         string            `json:"sslGrade"`
+	PreviousSslGrade string            `json:"previousSslGrade"`
 	Logo             string            `json:"logo"`
 	Title            string            `json:"title"`
-	IsDown           bool              `json:"is_down"`
+	IsDown           bool              `json:"isDown"`
 }
 
 // CreateDomainResponse create new domain response by domain and your servers
