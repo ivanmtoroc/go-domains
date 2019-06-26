@@ -56,7 +56,6 @@ p {
 }
 a:hover {
   text-decoration: none !important;
-  color: #2EDC8E;
 }
 h2 {
   font-size: 40px !important;

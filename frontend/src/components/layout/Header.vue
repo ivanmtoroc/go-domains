@@ -16,6 +16,9 @@
 .navbar {
   background-color: #35495E;
 }
+a:hover {
+  color: #2EDC8E;
+}
 p, h1 {
   color: white;
 }
