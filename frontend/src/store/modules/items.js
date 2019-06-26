@@ -39,6 +39,11 @@ const actions = {
   updateOffset ({ commit, dispatch }, newOffset) {
     commit('setOffset', newOffset)
     dispatch('getItems')
+  },
+  updateCurrentPage ({ state, commit, dispatch }, value) {
+    if (value == null) { return }
+    commit('setCurrentPage', value)
+    dispatch('updateOffset', state.limit * (value - 1))
   }
 }
 

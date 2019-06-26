@@ -73,20 +73,21 @@ export default {
   },
   methods: {
     ...mapMutations('items', [
+      'setLimit',
+      'setOffset',
       'setCurrentPage'
     ]),
     ...mapActions('items', [
       'getItems',
       'updateLimit',
-      'updateOffset'
-    ]),
-    updateCurrentPage (value) {
-      this.setCurrentPage(value)
-      this.updateOffset(this.limit * (value - 1))
-    }
+      'updateCurrentPage'
+    ])
   },
   mounted () {
-    this.updateLimit(this.perPageValues[0])
+    this.setLimit(this.perPageValues[0])
+    this.setOffset(0)
+    this.setCurrentPage(1)
+    this.getItems()
   }
 }
 </script>
