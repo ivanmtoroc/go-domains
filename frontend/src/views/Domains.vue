@@ -4,61 +4,70 @@
     <b-form @submit="getDomain" inline>
       <b-form-group>
         <input
-        class="form-control mb-2 mr-sm-2 mb-sm-0"
-        placeholder="Domain name"
-        :value="domainName"
-        @input="updateDomainName"
-        pattern="^[a-zA-Z0-9-.]*$"
-        required
+          :value="domainName"
+          @input="updateDomainName"
+          class="form-control mb-2 mr-sm-2 mb-sm-0"
+          placeholder="Domain name"
+          pattern="^[a-zA-Z0-9-.]*$"
+          required
         />
-        <b-button :disabled="isLoading" type="submit" variant="success">
-          Get
+        <b-button :disabled="isLoading || !isOnline" type="submit" variant="success">
+          Get!
         </b-button>
       </b-form-group>
     </b-form>
-    <b-tabs class="mt-3" content-class="mt-3" pills justified>
-      <b-tab title="Web">
-        <Domain
-        :domainInfo="domainInfo"
-        :isLoading="isLoading"
-        :showInfo="showInfo"
-        />
-      </b-tab>
-      <b-tab title="JSON">
-        <JsonViewer :data="domainInfo" :isLoading="isLoading"/>
-      </b-tab>
-    </b-tabs>
+    <div v-if="isOnline">
+      <error-component v-if="showError" :message="error.statusText" />
+      <h3 v-else-if="!showDomain" class="vue-blue mt-3">
+        Look for the information of some domain!
+      </h3>
+      <b-tabs v-else class="mt-3" content-class="mt-3" pills justified>
+        <b-tab title="Table">
+          <domain-component :domain="domain" :isLoading="isLoading" />
+        </b-tab>
+        <b-tab title="JSON">
+          <json-viewer-component :data="domain" :isLoading="isLoading" />
+        </b-tab>
+      </b-tabs>
+    </div>
+    <error-component v-else message="No internet connection 😿" />
   </div>
 </template>
 
 <script>
-import { mapState, mapMutations, mapActions } from 'vuex'
-import JsonViewer from '@/components/JsonViewer'
-import Domain from '@/components/Domain'
+import { mapState, mapGetters, mapActions } from 'vuex'
+
+import DomainComponent from '@/components/Domain'
+import JsonViewerComponent from '@/components/JsonViewer'
+import ErrorComponent from '@/components/Error'
 
 export default {
+  name: 'domain',
   components: {
-    JsonViewer,
-    Domain
+    DomainComponent,
+    JsonViewerComponent,
+    ErrorComponent
   },
   computed: {
+    ...mapState('app', [
+      'isOnline'
+    ]),
     ...mapState('domains', [
-      'domainInfo',
       'domainName',
-      'isLoading',
-      'showInfo'
+      'domain',
+      'error',
+      'isLoading'
+    ]),
+    ...mapGetters('domains', [
+      'showDomain',
+      'showError'
     ])
   },
   methods: {
-    ...mapMutations('domains', [
-      'setDomainName'
-    ]),
     ...mapActions('domains', [
-      'getDomain'
-    ]),
-    updateDomainName (event) {
-      this.setDomainName(event.target.value)
-    }
+      'getDomain',
+      'updateDomainName'
+    ])
   }
 }
 </script>

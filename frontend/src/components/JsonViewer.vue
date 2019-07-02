@@ -1,7 +1,7 @@
 <template>
-  <b-card class="mt-3" header="JSON viewer">
+  <b-card class="mt-3">
     <div v-if="isLoading" class="text-center">
-      <b-spinner variant="success" label="Spinning"></b-spinner>
+      <b-spinner variant="success"></b-spinner>
     </div>
     <pre v-else class="m-0">{{ data }}</pre>
   </b-card>
@@ -9,9 +9,16 @@
 
 <script>
 export default {
+  name: 'json-viewer-component',
   props: {
-    data: Object,
-    isLoading: Boolean
+    data: {
+      type: Object,
+      default: () => {}
+    },
+    isLoading: {
+      type: Boolean,
+      default: false
+    }
   }
 }
 </script>

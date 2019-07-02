@@ -31,7 +31,7 @@ func GetDomain(w http.ResponseWriter, r *http.Request) {
 			render.Render(w, r, responses.Error500)
 			return
 		} else if !isValid {
-			render.Render(w, r, responses.ErrorInvalidDomain)
+			render.Render(w, r, responses.Error404)
 			return
 		}
 		// Use scraper to get domain and servers information
@@ -40,7 +40,7 @@ func GetDomain(w http.ResponseWriter, r *http.Request) {
 			render.Render(w, r, responses.Error500)
 			return
 		} else if !domain.IsValid {
-			render.Render(w, r, responses.ErrorInvalidDomain)
+			render.Render(w, r, responses.Error404)
 			return
 		}
 	} else {

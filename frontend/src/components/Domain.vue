@@ -1,59 +1,46 @@
 <template>
   <b-card>
-    <div v-show="showInfo">
-      <div v-if="isLoading" class="text-center">
-        <b-spinner variant="success" label="Spinning"></b-spinner>
-      </div>
-      <b-card-text v-else>
-        <h3>
-          <b-img :src="domainInfo.logo" width="30" height="30"></b-img>
-          {{ domainInfo.title }}
-        </h3>
-        <b-table class="mt-2" hover :items="metrics"></b-table>
-        <b-list-group>
-          <Server
-            v-for="(server, index) in domainInfo.servers"
-            :key="index"
-            :server="server"
-            :index="index"
-          />
-        </b-list-group>
-      </b-card-text>
+    <div v-if="isLoading" class="text-center">
+      <b-spinner variant="success"></b-spinner>
     </div>
+    <b-card-text v-else>
+      <h3 class="mb-2">
+        <b-img :src="domain.logo" width="30" height="30"></b-img>
+        {{ domain.title }}
+      </h3>
+      <b-table :items="items" stacked class="mt-3"></b-table>
+      <servers-component :servers="domain.servers" />
+    </b-card-text>
   </b-card>
 </template>
 
 <script>
-import parser from '@/utilities/parser'
-import Server from '@/components/Server'
+import converter from '@/utilities/converter'
+import ServersComponent from '@/components/Servers'
 
 export default {
-  props: {
-    domainInfo: Object,
-    isLoading: Boolean,
-    showInfo: Boolean
-  },
+  name: 'domain-component',
   components: {
-    Server
+    ServersComponent
+  },
+  props: {
+    domain: {
+      type: Object,
+      default: () => {}
+    },
+    isLoading: {
+      type: Boolean,
+      default: false
+    }
   },
   computed: {
-    metrics () {
+    items () {
       return [
         {
-          metric: 'Is down',
-          value: parser.booleanToHuman(this.domainInfo.isDown)
-        },
-        {
-          metric: 'Servers changed',
-          value: parser.booleanToHuman(this.domainInfo.serversChanged)
-        },
-        {
-          metric: 'SSL grade',
-          value: this.domainInfo.sslGrade
-        },
-        {
-          metric: 'Previous SSL grade',
-          value: this.domainInfo.previousSslGrade
+          'Is down': converter.affirmation(this.domain.isDown),
+          'Servers changed': converter.affirmation(this.domain.serversChanged),
+          'SSL grade': this.domain.sslGrade,
+          'Previous SSL grade': this.domain.previousSslGrade
         }
       ]
     }

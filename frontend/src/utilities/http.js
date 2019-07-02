@@ -9,8 +9,10 @@ const get = async function (url) {
     const response = await http.get(url)
     return response.data
   } catch (error) {
-    // Add error handle
-    console.log(`Error: ${error}`)
+    return {
+      status: 400,
+      statusText: 'Connection refused 😾'
+    }
   }
 }
 

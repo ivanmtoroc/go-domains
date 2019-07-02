@@ -2,22 +2,31 @@
   <div>
     <h2 class="vue-green">About</h2>
     <p>
-      Rest API that allows us to obtain information about a server
-      and to know if the configurations have changed.<br/>
-      <br/>
+      Web application to obtain information about a domain and its servers.
+      For example: the SSL grade of the servers and if the configurations
+      of the servers have changed one hour beforehand.<br />
+      <br />
+      In
       <router-link class="vue-green" :to="{ name: 'domains' }">
-        Get domains
+        Get Domain
       </router-link>
-      receive a domain like
+      a domain, like
       <a class="vue-green" href="http://truora.com" target="_blank">
         truora.com
       </a>
-      and return a JSON with the information.<br/>
-      <br/>
+      , is entered and the information of the domain and its servers is obtained.<br />
+      <br />
+      In
       <router-link class="vue-green" :to="{ name: 'items' }">
-        Get items
+        Get Items
       </router-link>
-      lists the servers that have been previously consulted.
+      , the domains that have been consulted previously are listed.
     </p>
   </div>
 </template>
+
+<script>
+export default {
+  name: 'about'
+}
+</script>
