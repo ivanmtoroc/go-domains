@@ -20,32 +20,36 @@ func GetDomain(w http.ResponseWriter, r *http.Request) {
 	var servers []*models.Server
 	var err error
 	var isValid bool
+	var domainName string
 
 	// Add CORS to response
 	utilities.SetCORS(w)
 
+	domainName = chi.URLParam(r, "domainName")
+
 	// Get 'domainName' URL parameter
-	if domainName := chi.URLParam(r, "domainName"); domainName != "" {
-		// Validate domainName
-		if isValid, err = utilities.ValidateDomainName(domainName); err != nil {
-			render.Render(w, r, responses.Error500)
-			return
-		} else if !isValid {
-			render.Render(w, r, responses.Error404)
-			return
-		}
-		// Use scraper to get domain and servers information
-		domain, servers, err = scraper.GetDomainByNameAPI(domainName)
-		if err != nil {
-			render.Render(w, r, responses.Error500)
-			return
-		} else if !domain.IsValid {
-			render.Render(w, r, responses.Error404)
-			return
-		}
-	} else {
+	if domainName == "" {
 		// If URL parameter is not set
 		render.Render(w, r, responses.Error400)
+		return
+	}
+
+	// Validate domainName
+	if isValid, err = utilities.ValidateDomainName(domainName); err != nil {
+		render.Render(w, r, responses.Error500)
+		return
+	} else if !isValid {
+		render.Render(w, r, responses.Error404)
+		return
+	}
+
+	// Use scraper to get domain and servers information
+	domain, servers, err = scraper.GetDomainByNameAPI(domainName)
+	if err != nil {
+		render.Render(w, r, responses.Error500)
+		return
+	} else if !domain.IsValid {
+		render.Render(w, r, responses.Error404)
 		return
 	}
 
