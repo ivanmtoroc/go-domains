@@ -1,10 +1,10 @@
-# Go Domains
+# 🔍🌎 Go Domains
 
 Web application to get information about any domain.
 
 The information is getted from [SSL Labs](https://www.ssllabs.com/), web scraping and [Whois](http://manpages.ubuntu.com/manpages/bionic/man1/whois.1.html).
 
-This application is development using Golang and Vue.js.
+Development using Golang and Vue.js.
 
 ## Dependecies
 
