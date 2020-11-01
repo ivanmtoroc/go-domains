@@ -8,17 +8,18 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// dbAddress is used to init connection
+const dbAddress = "postgresql://root@localhost:26257/domains?ssl=true&sslmode=require&sslrootcert=certs/ca.crt&sslkey=certs/client.root.key&sslcert=certs/client.root.crt"
+
 // db is the database connection object
 var db *sql.DB
 
 // InitDB function init the connection to database
 func InitDB() {
-	// DbAddress used to init connection
-	const DbAddress = "postgresql://ivanmtoroc@localhost:26257/domains?sslmode=disable"
 	var err error
 
 	// Open connection
-	db, err = sql.Open("postgres", DbAddress)
+	db, err = sql.Open("postgres", dbAddress)
 	if err != nil {
 		log.Println("database connection error")
 		log.Fatalln("- error: ", err)

@@ -4,50 +4,51 @@ Web application to get information about any domain.
 
 The information is getted from [SSL Labs](https://www.ssllabs.com/), web scraping and [Whois](http://manpages.ubuntu.com/manpages/bionic/man1/whois.1.html).
 
-Development using Golang and Vue.js.
+Development using Golang and Vue.js. 🐹💚
 
-## Dependecies
+## Install dependecies
 
 ```bash
-# install Whois bin in Ubuntu
-sudo apt install whois
+# Install Whois bin in Ubuntu
+sudo apt install -y whois
 
-# install Go dependecies
+# Install Go dependecies
 go get -u github.com/lib/pq
+go get -u golang.org/x/net/html
 go get -u github.com/go-chi/chi
 go get -u github.com/go-chi/render
-go get -u golang.org/x/net/html
 ```
 
-## Run
+Also, [install CockroachDB](https://www.cockroachlabs.com/docs/v20.1/install-cockroachdb.html). 🐞
 
-1. Clone Github repository:
+## Run project
+
+1. Clone GitHub repository:
 
     ```bash
     git clone https://github.com/ivanmtoroc/go-domains.git $GOPATH/src/github.com/ivanmtoroc/go-domains
     cd $GOPATH/src/github.com/ivanmtoroc/go-domains/
     ```
 
-2. Start CockroachDB node:
+2. Init CockroachDB cluster:
 
     ```bash
-    # console session 0
-    cockroach start --insecure --listen-addr=localhost # --background
+    chmod 764 init_database.sh
+    ./init_database.sh
     ```
 
 3. Start backend server:
 
     ```bash
-    # console session 1
-    cockroach sql --insecure < models/config/init_db.sql
+    # Console session 1
     go run main.go
     ```
 
 4. Start frontend server:
 
-    ```bash
-    # console session 2
-    cd frontend/
-    npm i
-    npm run dev
-    ```
+   ```bash
+   # Console session 2
+   cd frontend/
+   npm i
+   npm run dev
+   ```

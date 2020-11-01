@@ -1,4 +1,11 @@
+# Development
+.vscode/
+
+# Backend
+ca-dir/
+certs/
 cockroach-data/
+
+# Frontend
 node_modules/
 dist/
-.vscode/
